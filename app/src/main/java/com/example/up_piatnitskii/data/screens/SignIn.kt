@@ -40,12 +40,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.up_piatnitskii.R
-
+import com.example.up_piatnitskii.ui.theme.BackgroundColor
+import com.example.up_piatnitskii.ui.theme.HintColor
+import com.example.up_piatnitskii.ui.theme.RalewayTypography
+import com.example.up_piatnitskii.ui.theme.SubTextDarkColor
+import com.example.up_piatnitskii.ui.theme.TextColor
 
 
 private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
@@ -64,12 +69,12 @@ fun SignInScreen(onBackClick: () -> Unit = {},) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .padding(top = 32.dp)
+                .padding(horizontal = 20.dp)
+                .padding(top = 66.dp)
             ,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(24.dp))
+
 
             // Круглая кнопка "назад"
             Row(
@@ -79,7 +84,7 @@ fun SignInScreen(onBackClick: () -> Unit = {},) {
                 ElevatedButton(
                     onClick = onBackClick,
                     shape = CircleShape,
-                    modifier = Modifier.size(50.dp),
+                    modifier = Modifier.size(40.dp),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Icon(
@@ -90,89 +95,124 @@ fun SignInScreen(onBackClick: () -> Unit = {},) {
                 }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-            }
-
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
 
             Text(
                 text = "Привет!",
-                style = MaterialTheme.typography.headlineMedium,
-                fontSize = 32.sp
+                style = RalewayTypography.headingRegular32,
+                color = TextColor,
 
             )
+            Spacer(Modifier.height(8.dp))
             Text(
-                text = "Заполните Свои данные",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray,
-                fontSize = 16.sp
+                text = "Заполните Свои Данные",
+                color = SubTextDarkColor,
+                style = RalewayTypography.bodyRegular16
             )
 
-            Spacer(Modifier.height(32.dp))
-
-            // Email
-            Text(text = "Email", style = MaterialTheme.typography.bodyMedium)
-            OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    emailError = !emailRegex.matches(it)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                placeholder = { Text("xyz@gmail.com") },
-                isError = emailError,
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFF3F3F3),
-                    unfocusedContainerColor = Color(0xFFF3F3F3),
-                    disabledContainerColor = Color(0xFFF3F3F3)
-                ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Пароль
-            Text(text = "Пароль", style = MaterialTheme.typography.bodyMedium)
-            OutlinedTextField(
-                value = password.value,
-                onValueChange = { password.value = it },
+            Spacer(Modifier.height(54.dp))
+            // Колонка с полями, выровненными слева
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFF3F3F3),
-                    unfocusedContainerColor = Color(0xFFF3F3F3),
-                    disabledContainerColor = Color(0xFFF3F3F3)
-                ),
-                visualTransformation = if (passwordVisible.value)
-                    VisualTransformation.None
-                else
-                    PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
-                        Icon(
-                            painter = painterResource(
-                                id = if (passwordVisible.value)
-                                    R.drawable.eye_open     // иконка «глаз закрыт»
+                horizontalAlignment = Alignment.Start
+            ) {
+                // Email
+                Text(text = "Email",
+                    style = RalewayTypography.bodyMedium16,
+                    color = TextColor,
+                )
+
+                OutlinedTextField(
+                    value = email,
+
+                    onValueChange = {
+                        email = it
+                        emailError = !emailRegex.matches(it)
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+
+                    placeholder = {
+                        Text("xyz@gmail.com",
+                            color = HintColor,
+                            style = RalewayTypography.bodyRegular14,) },
+
+                    isError = emailError,
+
+                    shape = RoundedCornerShape(14.dp),
+
+                    colors = OutlinedTextFieldDefaults.colors(
+                        // Прозрачные границы
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent,
+                        // Цвета фона
+                        focusedContainerColor = BackgroundColor,
+                        unfocusedContainerColor = BackgroundColor,
+                        disabledContainerColor =BackgroundColor
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                )
+
+                Spacer(Modifier.height(30.dp))
+
+                // Пароль
+                Text(text = "Пароль",
+                    style = RalewayTypography.bodyMedium16,
+                    color = TextColor,
+                    textAlign = TextAlign.Start
+                )
+                OutlinedTextField(
+                    value = password.value,
+                    onValueChange = { password.value = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    placeholder = {
+                        Text("*********",
+                            color = HintColor,
+                            style = RalewayTypography.bodyRegular14,) },
+
+                    shape = RoundedCornerShape(14.dp),
+
+                    colors = OutlinedTextFieldDefaults.colors(
+                        // Прозрачные границы
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent,
+                        // Цвета фона
+                        focusedContainerColor = BackgroundColor,
+                        unfocusedContainerColor = BackgroundColor,
+                        disabledContainerColor =BackgroundColor
+                    ),
+                    visualTransformation = if (passwordVisible.value)
+                        VisualTransformation.None
+                    else
+                        PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (passwordVisible.value)
+                                        R.drawable.eye_open     // иконка «глаз закрыт»
+                                    else
+                                        R.drawable.eye_close
+                                ),
+                                contentDescription = if (passwordVisible.value)
+                                    "Скрыть пароль"
                                 else
-                                    R.drawable.eye_close
-                            ),
-                            contentDescription = if (passwordVisible.value)
-                                "Скрыть пароль"
-                            else
-                                "Показать пароль",
-                            tint = Color.Unspecified
-                        )
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-            )
+                                    "Показать пароль",
+                                tint = Color.Unspecified
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                )
+            }
+
+
 
 
             Spacer(Modifier.height(24.dp))
@@ -191,20 +231,25 @@ fun SignInScreen(onBackClick: () -> Unit = {},) {
                     .height(52.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Войти")
+                Text("Войти", color = BackgroundColor,
+                    style = RalewayTypography.bodyRegular14,)
             }
 
             Spacer(Modifier.weight(1f))
 
             Row(
-                modifier = Modifier.padding(bottom = 24.dp),
+                modifier = Modifier.padding(bottom = 48.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Вы здесь впервые? ")
+                Text(
+                    text = "Вы впервые? ",
+                    color = HintColor,
+                    style = RalewayTypography.bodyRegular16,
+                )
                 Text(
                     text = "Создать",
-                    color = Color(0xFF000000),
-                    fontWeight = FontWeight.Medium,
+                    color = TextColor,
+                    style = RalewayTypography.bodyRegular16,
                     modifier = Modifier.clickable { /* TODO: навигация к логину */ }
                 )
             }

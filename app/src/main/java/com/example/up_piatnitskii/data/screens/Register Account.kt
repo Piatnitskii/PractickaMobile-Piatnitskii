@@ -24,6 +24,7 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +45,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.up_piatnitskii.R
+import com.example.up_piatnitskii.ui.theme.BackgroundColor
+import com.example.up_piatnitskii.ui.theme.HintColor
+import com.example.up_piatnitskii.ui.theme.RalewayTypography
+import com.example.up_piatnitskii.ui.theme.SubTextDarkColor
+
+import com.example.up_piatnitskii.ui.theme.TextColor
 
 // Регулярка для email: name@domain.ru (только маленькие латинские буквы и цифры,
 // TLD минимум 3 символа)
@@ -59,7 +66,7 @@ fun SignUpScreen(
     onRegisterClick: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     val name = remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }          // <‑‑ исправлено
+    var email by remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
     val agreementChecked = remember { mutableStateOf(false) }
@@ -70,32 +77,32 @@ fun SignUpScreen(
 
     var emailError by remember { mutableStateOf(false) }
 
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(modifier = Modifier.fillMaxSize(),  color = Color.White) {
 
-        if (showEmailErrorDialog.value) {
-            AlertDialog(
-                onDismissRequest = { showEmailErrorDialog.value = false },
-                confirmButton = {
-                    Button(onClick = { showEmailErrorDialog.value = false }) {
-                        Text("Ок")
-                    }
-                },
-                title = { Text("Ошибка") },
-                text = {
-                    Text(
-                        "Некорректный email. Используйте формат name@domain.ru (только строчные буквы и цифры, домен не короче 3 символов)."
-                    )
-                }
-            )
-        }
+//        if (showEmailErrorDialog.value) {
+//            AlertDialog(
+//                onDismissRequest = { showEmailErrorDialog.value = false },
+//                confirmButton = {
+//                    Button(onClick = { showEmailErrorDialog.value = false }) {
+//                        Text("Ок")
+//                    }
+//                },
+//                title = { Text("Ошибка") },
+//                text = {
+//                    Text(
+//                        "Некорректный email. Используйте формат name@domain.ru (только строчные буквы и цифры, домен не короче 3 символов)."
+//                    )
+//                }
+//            )
+//        }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .padding(top = 32.dp)
+                .padding(horizontal = 20.dp)
+                .padding(top = 66.dp)
         ) {
-            Spacer(Modifier.height(24.dp))
+
 
             // Круглая кнопка "назад"
             Row(
@@ -105,7 +112,7 @@ fun SignUpScreen(
                 ElevatedButton(
                     onClick = onBackClick,
                     shape = CircleShape,
-                    modifier = Modifier.size(50.dp),
+                    modifier = Modifier.size(width = 44.dp, height = 44.dp),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Icon(
@@ -122,23 +129,23 @@ fun SignUpScreen(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
 
                 Text(
                     text = "Регистрация",
-                    color = Color(0xFF2B2B2B),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Normal,
+                    color = TextColor,
+                    style = RalewayTypography.headingRegular32,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
+                Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Заполните Свои данные",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF707B81),
+                    text = "Заполните Свои Данные",
+                    style = RalewayTypography.subtitleRegular16,
+                    color = SubTextDarkColor,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(54.dp))
 
                 // Колонка с полями, выровненными слева
                 Column(
@@ -148,34 +155,44 @@ fun SignUpScreen(
                     // Имя
                     Text(
                         text = "Ваше имя",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF2B2B2B),
-                        fontSize = 16.sp
+                        style = RalewayTypography.bodyMedium16,
+                        color = TextColor,
                     )
                     OutlinedTextField(
                         value = name.value,
                         onValueChange = { name.value = it },
                         modifier = Modifier
+
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
+                            .padding(top = 12.dp),
+
                         placeholder = {
                             Text(
                                 "xxxxxxxx",
-                                color = Color(0xFF6A6A6A),
-                                fontSize = 14.sp
+                                color = HintColor,
+                                style = RalewayTypography.bodyRegular14,
                             )
                         },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            // Прозрачные границы
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent,
+                            disabledBorderColor = Color.Transparent,
+                            // Цвета фона
+                            focusedContainerColor = BackgroundColor,
+                            unfocusedContainerColor = BackgroundColor,
+                            disabledContainerColor =BackgroundColor
+                        ),
                         shape = RoundedCornerShape(14.dp)
                     )
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     // Email
                     Text(
                         text = "Email",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF2B2B2B),
-                        fontSize = 16.sp
+                        style = RalewayTypography.bodyMedium16,
+                        color = TextColor,
                     )
                     OutlinedTextField(
                         value = email,
@@ -185,38 +202,53 @@ fun SignUpScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
+                            .padding(top = 12.dp),
                         isError = emailError,
                         placeholder = {
                             Text(
-                                "name@domain.ru",
-                                color = Color(0xFF6A6A6A),
-                                fontSize = 14.sp
+                                "xyz@gmail.com",
+                                color = HintColor,
+                                style = RalewayTypography.bodyRegular14,
                             )
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        shape = RoundedCornerShape(14.dp)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent,
+                        // Цвета фона
+                        focusedContainerColor = BackgroundColor,
+                        unfocusedContainerColor = BackgroundColor,
+                        disabledContainerColor =BackgroundColor
+                    ),
                     )
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     // Пароль
                     Text(
                         text = "Пароль",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF2B2B2B),
-                        fontSize = 16.sp
+                        style = RalewayTypography.bodyMedium16,
+                        color = TextColor,
                     )
                     OutlinedTextField(
                         value = password.value,
                         onValueChange = { password.value = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
+                            .padding(top = 12.dp),
                         visualTransformation = if (passwordVisible.value)
                             VisualTransformation.None
                         else
                             PasswordVisualTransformation(),
+                        placeholder = {
+                            Text(
+                                "********",
+                                color = HintColor,
+                                style = RalewayTypography.bodyRegular14,
+                            )
+                        },
                         trailingIcon = {
                             androidx.compose.material3.IconButton(
                                 onClick = { passwordVisible.value = !passwordVisible.value }
@@ -236,10 +268,20 @@ fun SignUpScreen(
                             }
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        shape = RoundedCornerShape(14.dp)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            // Прозрачные границы
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent,
+                            disabledBorderColor = Color.Transparent,
+                            // Цвета фона
+                            focusedContainerColor = BackgroundColor,
+                            unfocusedContainerColor = BackgroundColor,
+                            disabledContainerColor =BackgroundColor
+                        ),
                     )
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     // Чекбокс согласия
                     Row(
@@ -249,14 +291,15 @@ fun SignUpScreen(
                         Icon(
                             painter = painterResource(
                                 id = if (agreementChecked.value)
-                                    R.drawable.vector
+                                    R.drawable.frame_1000000814
                                 else
-                                    R.drawable.policy_check
+                                    R.drawable.frame_1000
                             ),
                             contentDescription = if (agreementChecked.value)
                                 "Отмечено"
                             else
                                 "Не отмечено",
+
                             tint = Color.Unspecified,
                             modifier = Modifier
                                 .size(20.dp)
@@ -266,12 +309,12 @@ fun SignUpScreen(
                         )
 
                         Text(
-                            fontSize = 18.sp,
                             text = "Даю согласие на обработку\nперсональных данных",
-                            color = Color.Gray,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                textDecoration = TextDecoration.Underline
-                            )
+                            color = HintColor,
+                            style = RalewayTypography.bodyRegular16.copy(
+                                textDecoration = TextDecoration.LineThrough // Добавляем перечеркивание
+                            ),
+                            modifier = Modifier.padding(start = 12.dp)
                         )
                     }
 
@@ -300,7 +343,10 @@ fun SignUpScreen(
                             disabledContentColor = Color.White.copy(alpha = 0.7f)
                         )
                     ) {
-                        Text("Зарегистрироваться")
+                        Text("Зарегистрироваться",
+                            color = BackgroundColor,
+                            style = RalewayTypography.bodyRegular14,
+                        )
                     }
                 }
             }
@@ -309,18 +355,19 @@ fun SignUpScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
+                    .padding(bottom = 47.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "Есть аккаунт? ",
-                    color = Color(0xFF707B81)
+                    color = HintColor,
+                    style = RalewayTypography.bodyRegular16,
                 )
                 Text(
                     text = "Войти",
-                    color = Color(0xFF2B2B2B),
-                    fontWeight = FontWeight.Normal,
+                    color = TextColor,
+                    style = RalewayTypography.bodyRegular16,
                     modifier = Modifier.clickable { onLoginClick() }
                 )
             }

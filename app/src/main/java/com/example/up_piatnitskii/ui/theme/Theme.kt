@@ -9,28 +9,61 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = AccentColor,              // Основной цвет бренда
+    secondary = RedColor,               // Вторичный/акцентный цвет
+
+    // Фоны
+    background = BackgroundColor,
+    surface = BlockColor,
+    surfaceVariant = BackgroundColor,
+
+    // Текст
+    onPrimary = BlockColor,             // Текст на основном цвете
+    onSecondary = BlockColor,           // Текст на вторичном цвете
+    onBackground = TextColor,           // Основной текст на фоне
+    onSurface = TextColor,              // Текст на поверхности
+
+    // Статусные цвета
+    error = RedColor,
+    onError = BlockColor,
+
+    // Дополнительные
+    outline = SubTextLightColor,
+    outlineVariant = SubTextDarkColor,
+
+    // Для disabled состояний
+    scrim = DisableColor,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = AccentColor,              // Основной цвет бренда
+    secondary = RedColor,               // Вторичный/акцентный цвет
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    // Фоны
+    background = BackgroundColor,
+    surface = BlockColor,
+    surfaceVariant = BackgroundColor,
+
+    // Текст
+    onPrimary = BlockColor,             // Текст на основном цвете
+    onSecondary = BlockColor,           // Текст на вторичном цвете
+    onBackground = TextColor,           // Основной текст на фоне
+    onSurface = TextColor,              // Текст на поверхности
+
+    // Статусные цвета
+    error = RedColor,
+    onError = BlockColor,
+
+    // Дополнительные
+    outline = SubTextLightColor,
+    outlineVariant = SubTextDarkColor,
+
+    // Для disabled состояний
+    scrim = DisableColor,
 )
 
 @Composable
@@ -52,7 +85,6 @@ fun UPPiatnitskiiTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
         content = content
     )
 }
