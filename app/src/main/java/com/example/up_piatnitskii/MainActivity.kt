@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.practice_mobile.ui.screen.SignUpScreen
+import com.example.up_piatnitskii.data.screens.SignInScreen
 import com.example.up_piatnitskii.ui.theme.UPPiatnitskiiTheme
 
 class MainActivity : ComponentActivity() {
