@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.example.practice_mobile.ui.screen.SignUpScreen
 import com.example.up_piatnitskii.ui.theme.UPPiatnitskiiTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,12 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             UPPiatnitskiiTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                SignUpScreen()
             }
         }
     }
