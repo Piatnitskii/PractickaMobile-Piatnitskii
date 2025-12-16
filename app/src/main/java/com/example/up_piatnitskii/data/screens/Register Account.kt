@@ -1,5 +1,7 @@
 package com.example.practice_mobile.ui.screen
 
+import SignUpViewModel
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,10 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,66 +45,49 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.ui.theme.BackgroundColor
 import com.example.up_piatnitskii.ui.theme.HintColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
 import com.example.up_piatnitskii.ui.theme.SubTextDarkColor
-
 import com.example.up_piatnitskii.ui.theme.TextColor
 
 // Регулярка для email: name@domain.ru (только маленькие латинские буквы и цифры,
 // TLD минимум 3 символа)
 private val EMAIL_REGEX = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
-private fun isEmailValid(email: String): Boolean = EMAIL_REGEX.matches(email)
+
 
 // Регистрация
 @Composable
 fun SignUpScreen(
+    viewModel: SignUpViewModel,
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
-    onRegisterClick: (String, String, String) -> Unit = { _, _, _ -> }
+    onRegistrationSuccess: () -> Unit = {}
 ) {
-    val name = remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
     val passwordVisible = remember { mutableStateOf(false) }
     val agreementChecked = remember { mutableStateOf(false) }
 
-    val showEmailErrorDialog = remember { mutableStateOf(false) }
     val disabledColor = Color(0xFF2B6B8B)
     val enabledColor = Color(0xFF48B2E7)
 
     var emailError by remember { mutableStateOf(false) }
 
-    Surface(modifier = Modifier.fillMaxSize(),  color = Color.White) {
-
-//        if (showEmailErrorDialog.value) {
-//            AlertDialog(
-//                onDismissRequest = { showEmailErrorDialog.value = false },
-//                confirmButton = {
-//                    Button(onClick = { showEmailErrorDialog.value = false }) {
-//                        Text("Ок")
-//                    }
-//                },
-//                title = { Text("Ошибка") },
-//                text = {
-//                    Text(
-//                        "Некорректный email. Используйте формат name@domain.ru (только строчные буквы и цифры, домен не короче 3 символов)."
-//                    )
-//                }
-//            )
-//        }
-
+    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp)
                 .padding(top = 66.dp)
         ) {
-
-
             // Круглая кнопка "назад"
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -159,13 +143,11 @@ fun SignUpScreen(
                         color = TextColor,
                     )
                     OutlinedTextField(
-                        value = name.value,
-                        onValueChange = { name.value = it },
+                        value = name,
+                        onValueChange = { name = it },
                         modifier = Modifier
-
                             .fillMaxWidth()
                             .padding(top = 12.dp),
-
                         placeholder = {
                             Text(
                                 "xxxxxxxx",
@@ -181,7 +163,7 @@ fun SignUpScreen(
                             // Цвета фона
                             focusedContainerColor = BackgroundColor,
                             unfocusedContainerColor = BackgroundColor,
-                            disabledContainerColor =BackgroundColor
+                            disabledContainerColor = BackgroundColor
                         ),
                         shape = RoundedCornerShape(14.dp)
                     )
@@ -214,14 +196,14 @@ fun SignUpScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-                        disabledBorderColor = Color.Transparent,
-                        // Цвета фона
-                        focusedContainerColor = BackgroundColor,
-                        unfocusedContainerColor = BackgroundColor,
-                        disabledContainerColor =BackgroundColor
-                    ),
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent,
+                            disabledBorderColor = Color.Transparent,
+                            // Цвета фона
+                            focusedContainerColor = BackgroundColor,
+                            unfocusedContainerColor = BackgroundColor,
+                            disabledContainerColor = BackgroundColor
+                        ),
                     )
 
                     Spacer(Modifier.height(12.dp))
@@ -233,8 +215,8 @@ fun SignUpScreen(
                         color = TextColor,
                     )
                     OutlinedTextField(
-                        value = password.value,
-                        onValueChange = { password.value = it },
+                        value = password,
+                        onValueChange = { password = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp),
@@ -277,7 +259,7 @@ fun SignUpScreen(
                             // Цвета фона
                             focusedContainerColor = BackgroundColor,
                             unfocusedContainerColor = BackgroundColor,
-                            disabledContainerColor =BackgroundColor
+                            disabledContainerColor = BackgroundColor
                         ),
                     )
 
@@ -299,7 +281,6 @@ fun SignUpScreen(
                                 "Отмечено"
                             else
                                 "Не отмечено",
-
                             tint = Color.Unspecified,
                             modifier = Modifier
                                 .size(20.dp)
@@ -312,7 +293,7 @@ fun SignUpScreen(
                             text = "Даю согласие на обработку\nперсональных данных",
                             color = HintColor,
                             style = RalewayTypography.bodyRegular16.copy(
-                                textDecoration = TextDecoration.LineThrough // Добавляем перечеркивание
+                                textDecoration = TextDecoration.Underline
                             ),
                             modifier = Modifier.padding(start = 12.dp)
                         )
@@ -322,29 +303,35 @@ fun SignUpScreen(
 
                     Button(
                         onClick = {
-                            if (!isEmailValid(email)) {
-                                showEmailErrorDialog.value = true
-                            } else {
-                                onRegisterClick(name.value, email, password.value)
-                            }
+                            viewModel.email = email
+                            viewModel.password = password
+
+                            viewModel.signUp(
+                                onSuccess = onRegistrationSuccess,
+                                onError = { error -> Toast.makeText(context, error, Toast.LENGTH_LONG).show() }
+                            )
                         },
                         enabled = agreementChecked.value &&
-                                name.value.isNotBlank() &&
+                                name.isNotBlank() &&
                                 email.isNotBlank() &&
-                                password.value.isNotBlank(),
+                                password.isNotBlank(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
                         shape = RoundedCornerShape(14.dp),
+
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = enabledColor,
-                            disabledContainerColor = disabledColor,
+                            containerColor = if (agreementChecked.value &&
+                                name.isNotBlank() &&
+                                email.isNotBlank() &&
+                                password.isNotBlank()) enabledColor else disabledColor,
                             contentColor = Color.White,
                             disabledContentColor = Color.White.copy(alpha = 0.7f)
                         )
+
                     ) {
-                        Text("Зарегистрироваться",
-                            color = BackgroundColor,
+                        Text(
+                            "Зарегистрироваться",
                             style = RalewayTypography.bodyRegular14,
                         )
                     }
@@ -368,7 +355,9 @@ fun SignUpScreen(
                     text = "Войти",
                     color = TextColor,
                     style = RalewayTypography.bodyRegular16,
-                    modifier = Modifier.clickable { onLoginClick() }
+                    modifier = Modifier.clickable {
+                        onLoginClick()
+                    }
                 )
             }
         }
@@ -378,5 +367,5 @@ fun SignUpScreen(
 @Preview(showBackground = true)
 @Composable
 fun SignUpScreenPreview() {
-    SignUpScreen()
+    //SignUpScreen()
 }
