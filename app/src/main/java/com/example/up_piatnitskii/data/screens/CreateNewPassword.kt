@@ -47,7 +47,9 @@ private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
 // СОЗДАНИЕ ЭКРАНА СОЗДАНИЯ НОВГО ПАРОЛЯ, Щедрин Артем, 16.12.2025
 @Composable
-fun CreateNewPassword() {
+fun CreateNewPassword(
+
+) {
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
     val re_password = remember { mutableStateOf("") }

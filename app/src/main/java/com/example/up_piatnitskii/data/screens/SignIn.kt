@@ -42,8 +42,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.data.viewModel.SignInViewModel
 import com.example.up_piatnitskii.ui.theme.BackgroundColor
@@ -58,6 +60,7 @@ private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 fun SignInScreen(
     viewModel: SignInViewModel,
     onBackClick: () -> Unit = {},
+    onForgotPasswordClick:  () -> Unit = {},
     onRegisterClick: () -> Unit = {},
     onSignInClick: () -> Unit = {} //
 ) {
@@ -214,6 +217,23 @@ fun SignInScreen(
                 )
             }
 
+            // Ссылка "Восстановить"
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 24.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Text(
+                    text = "Восстановить",
+                    fontSize = 14.sp,
+                    color = Color(0xFF48B2E7),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    modifier = Modifier.clickable { onForgotPasswordClick() }
+                )
+            }
             Spacer(Modifier.height(24.dp))
 
             Button(

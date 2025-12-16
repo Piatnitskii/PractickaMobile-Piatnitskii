@@ -49,7 +49,8 @@ fun NavigationApp(navController: NavHostController, signUpViewModel: SignUpViewM
             SignInScreen(
                 viewModel = signInViewModel,
                 onRegisterClick = {navController.navigate("sign_up")},
-                onSignInClick = {navController.navigate("sign_up")}
+                onSignInClick = {navController.navigate("sign_up")},
+                onForgotPasswordClick = {navController.navigate("ForgotPassword")},
             )
         }
     }
