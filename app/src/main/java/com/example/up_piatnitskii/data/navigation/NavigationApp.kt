@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.up_piatnitskii.data.screens.CreateNewPassword
 import com.example.up_piatnitskii.data.screens.ForgotPassword
+import com.example.up_piatnitskii.data.screens.HomeScreen
 import com.example.up_piatnitskii.data.screens.OnboardScreen
 import com.example.up_piatnitskii.data.screens.SignInScreen
 import com.example.up_piatnitskii.data.screens.Verfication
@@ -26,10 +27,10 @@ import com.example.up_piatnitskii.data.viewModel.SignInViewModel
 
 @Composable
 fun NavigationApp(
-                    navController: NavHostController,
-                  signUpViewModel: SignUpViewModel,
-                  signInViewModel: SignInViewModel,
-                  context: Context
+    navController: NavHostController,
+    signUpViewModel: SignUpViewModel,
+    signInViewModel: SignInViewModel,
+    context: Context
 )
 {
     NavHost(
@@ -63,6 +64,9 @@ fun NavigationApp(
         composable("ForgotPassword") {
             ForgotPassword(
                 onOTPClick = {navController.navigate("Verification")},
+                onBackClick = {
+                    navController.navigate("sign_in")
+                }
             )
         }
 
@@ -74,12 +78,19 @@ fun NavigationApp(
             CreateNewPassword()
         }
 
+        composable("Home") {
+            HomeScreen({},{},{})
+        }
+
         composable("sign_in") {
             SignInScreen(
                 viewModel = signInViewModel,
                 onRegisterClick = {navController.navigate("sign_up")},
-                onSignInClick = {navController.navigate("sign_up")},
+                onSignInClick = {navController.navigate("Home")},
                 onForgotPasswordClick = {navController.navigate("ForgotPassword")},
+                onBackClick = {
+                    navController.navigate("sign_up")
+                }
             )
         }
     }
