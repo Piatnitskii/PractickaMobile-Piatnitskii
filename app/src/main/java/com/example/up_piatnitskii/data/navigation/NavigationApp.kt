@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.up_piatnitskii.data.screens.CreateNewPassword
 import com.example.up_piatnitskii.data.screens.ForgotPassword
+import com.example.up_piatnitskii.data.screens.OnboardScreen
 import com.example.up_piatnitskii.data.screens.SignInScreen
 import com.example.up_piatnitskii.data.screens.Verfication
 import com.example.up_piatnitskii.data.viewModel.SignInViewModel
@@ -33,9 +34,15 @@ fun NavigationApp(
 {
     NavHost(
         navController = navController,
-        startDestination = "sign_up"
+        startDestination = "start_menu"
 
     ) {
+        composable("start_menu") {
+            OnboardScreen (
+                onGetStartedClick = { navController.navigate("sign_up") },
+            )
+        }
+
         composable("sign_up") {
             SignUpScreen(
                 viewModel = signUpViewModel,
@@ -47,6 +54,9 @@ fun NavigationApp(
                 },
                 onLoginClick = {
                     navController.navigate("sign_in")
+                },
+                onBackClick = {
+                    navController.navigate("start_menu")
                 }
             )
         }

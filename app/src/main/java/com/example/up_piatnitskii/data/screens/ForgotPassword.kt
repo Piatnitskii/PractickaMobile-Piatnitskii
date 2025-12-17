@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.up_piatnitskii.R
+import com.example.up_piatnitskii.data.viewModel.ForgotPasswordViewModel
 import com.example.up_piatnitskii.ui.theme.BackgroundColor
 import com.example.up_piatnitskii.ui.theme.HintColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
