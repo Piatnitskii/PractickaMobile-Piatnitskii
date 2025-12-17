@@ -18,6 +18,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.up_piatnitskii.data.screens.CreateNewPassword
 import com.example.up_piatnitskii.data.screens.ForgotPassword
+import com.example.up_piatnitskii.data.screens.HomeScreen
+import com.example.up_piatnitskii.data.screens.OnboardScreen
 import com.example.up_piatnitskii.data.screens.SignInScreen
 import com.example.up_piatnitskii.data.screens.Verfication
 import com.example.up_piatnitskii.data.viewModel.SignInViewModel
@@ -25,17 +27,23 @@ import com.example.up_piatnitskii.data.viewModel.SignInViewModel
 
 @Composable
 fun NavigationApp(
-                    navController: NavHostController,
-                  signUpViewModel: SignUpViewModel,
-                  signInViewModel: SignInViewModel,
-                  context: Context
+    navController: NavHostController,
+    signUpViewModel: SignUpViewModel,
+    signInViewModel: SignInViewModel,
+    context: Context
 )
 {
     NavHost(
         navController = navController,
-        startDestination = "sign_up"
+        startDestination = "start_menu"
 
     ) {
+        composable("start_menu") {
+            OnboardScreen (
+                onGetStartedClick = { navController.navigate("sign_up") },
+            )
+        }
+
         composable("sign_up") {
             SignUpScreen(
                 viewModel = signUpViewModel,
@@ -47,12 +55,18 @@ fun NavigationApp(
                 },
                 onLoginClick = {
                     navController.navigate("sign_in")
+                },
+                onBackClick = {
+                    navController.navigate("start_menu")
                 }
             )
         }
         composable("ForgotPassword") {
             ForgotPassword(
                 onOTPClick = {navController.navigate("Verification")},
+                onBackClick = {
+                    navController.navigate("sign_in")
+                }
             )
         }
 
@@ -64,12 +78,19 @@ fun NavigationApp(
             CreateNewPassword()
         }
 
+        composable("Home") {
+            HomeScreen({},{},{})
+        }
+
         composable("sign_in") {
             SignInScreen(
                 viewModel = signInViewModel,
                 onRegisterClick = {navController.navigate("sign_up")},
-                onSignInClick = {navController.navigate("sign_up")},
+                onSignInClick = {navController.navigate("Home")},
                 onForgotPasswordClick = {navController.navigate("ForgotPassword")},
+                onBackClick = {
+                    navController.navigate("sign_up")
+                }
             )
         }
     }

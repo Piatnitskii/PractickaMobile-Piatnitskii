@@ -1,5 +1,7 @@
 package com.example.up_piatnitskii.data.service
 
+import com.example.up_piatnitskii.data.Model.ForgotPasswordRequest
+import com.example.up_piatnitskii.data.Model.ForgotPasswordResponse
 import com.example.up_piatnitskii.data.Model.SignInRequest
 import com.example.up_piatnitskii.data.Model.SignUpRequest
 import com.example.up_piatnitskii.data.Model.User
@@ -20,4 +22,9 @@ interface UserManagementService {
     @Headers("apikey: $SUPABASE_KEY")
     @POST("auth/v1/token?grant_type=password")
     suspend fun signIn(@Body signInRequest: SignInRequest): Response<SignInRequest>
+
+    @POST("auth/v1/recover")
+    suspend fun recoverPassword(
+        @Body forgotPasswordRequest: ForgotPasswordRequest
+    ): Response<ForgotPasswordResponse>
 }
