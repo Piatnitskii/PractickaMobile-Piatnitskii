@@ -1,0 +1,23 @@
+package com.example.up_piatnitskii.data
+
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.net.InetSocketAddress
+import java.net.Proxy
+import com.example.up_piatnitskii.data.service.UserManagementService
+
+object RetrofitInstance {
+    const val SUPABASE_URL = "https://agqelufzhvlooeaueidk.supabase.co"
+
+    var proxy: Proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress("10.207.106.77", 3128))
+    var client: OkHttpClient = OkHttpClient.Builder().proxy(proxy).build()
+
+    //var client: OkHttpClient = OkHttpClient.Builder().build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(SUPABASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(client)
+        .build()
+    val userManagementService = retrofit.create((UserManagementService::class.java))
+}
