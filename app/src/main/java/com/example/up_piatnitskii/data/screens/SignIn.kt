@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -54,6 +55,11 @@ import com.example.up_piatnitskii.ui.theme.RalewayTypography
 import com.example.up_piatnitskii.ui.theme.SubTextDarkColor
 import com.example.up_piatnitskii.ui.theme.TextColor
 
+// Создать экран «Sign In» как на макете.
+// 12. Экран «Sign In». Реализовать валидацию email (соответствие паттерну
+// «name@domenname.ru», где имя и доменное имя может состоять только из маленьких букв
+// и цифр, старший домен только из символов количеством больше двух). При некорректном
+// заполнении отобразить ошибку в диалоговом окне.
 private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
 @Composable
@@ -93,9 +99,13 @@ fun SignInScreen(
                 ElevatedButton(
                     onClick = onBackClick,
                     shape = CircleShape,
-                    modifier = Modifier.size(40.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
+                    modifier = Modifier.size(width = 44.dp, height = 44.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = BackgroundColor // HEX F7F7F9
+                    ),
+
+                    ) {
                     Icon(
                         imageVector = Icons.Filled.KeyboardArrowLeft,
                         contentDescription = "Назад",
@@ -107,13 +117,13 @@ fun SignInScreen(
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = "Привет!",
+                text = stringResource(id = R.string.hello),
                 style = RalewayTypography.headingRegular32,
                 color = TextColor,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Заполните Свои Данные",
+                text = stringResource(id = R.string.details),
                 color = SubTextDarkColor,
                 style = RalewayTypography.bodyRegular16
             )
@@ -127,7 +137,7 @@ fun SignInScreen(
             ) {
                 // Email
                 Text(
-                    text = "Email",
+                    text = stringResource(id = R.string.email),
                     style = RalewayTypography.bodyMedium16,
                     color = TextColor,
                 )
@@ -164,8 +174,9 @@ fun SignInScreen(
                 Spacer(Modifier.height(30.dp))
 
                 // Пароль
+                // 14. Экран «Sign In». Реализовать возможность отображения пароля.
                 Text(
-                    text = "Пароль",
+                    text = stringResource(id = R.string.pass),
                     style = RalewayTypography.bodyMedium16,
                     color = TextColor,
                     textAlign = TextAlign.Start
@@ -218,6 +229,8 @@ fun SignInScreen(
             }
 
             // Ссылка "Восстановить"
+            // 16. Экран «Sign In». При нажатии на «Восстановить» осуществить переход на
+            //экран «Forgot Password».
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -225,7 +238,7 @@ fun SignInScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    text = "Восстановить",
+                    text = stringResource(id = R.string.recovery),
                     fontSize = 14.sp,
                     color = Color(0xFF48B2E7),
                     style = MaterialTheme.typography.bodyMedium.copy(
@@ -264,7 +277,7 @@ fun SignInScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    "Войти",
+                    stringResource(id = R.string.sign_in),
                     color = BackgroundColor,
                     style = RalewayTypography.bodyRegular14
                 )
@@ -272,17 +285,19 @@ fun SignInScreen(
 
             Spacer(Modifier.weight(1f))
 
+            // 17. Экран «Sign In». Реализовать переход на экран «Register Account» при
+            //нажатии на «Создать пользователя».
             Row(
                 modifier = Modifier.padding(bottom = 48.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Вы впервые? ",
+                    text = stringResource(id = R.string.new_user),
                     color = HintColor,
                     style = RalewayTypography.bodyRegular16,
                 )
                 Text(
-                    text = "Создать",
+                    text = stringResource(id = R.string.create),
                     color = TextColor,
                     style = RalewayTypography.bodyRegular16,
                     modifier = Modifier.clickable { onRegisterClick() }

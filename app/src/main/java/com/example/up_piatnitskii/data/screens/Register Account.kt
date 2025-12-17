@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -52,10 +53,15 @@ import com.example.up_piatnitskii.ui.theme.HintColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
 import com.example.up_piatnitskii.ui.theme.SubTextDarkColor
 import com.example.up_piatnitskii.ui.theme.TextColor
+import androidx.compose.material.AlertDialog
 
-// Регулярка для email: name@domain.ru (только маленькие латинские буквы и цифры,
-// TLD минимум 3 символа)
-private val EMAIL_REGEX = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
+
+
+//2. Создать экран «Register Account», как на макете.
+//3. Экран «Register Account». Реализовать проверку email на корректность
+//(соответствие паттерну «name@domenname.ru», где имя и доменное имя может состоять
+//только из маленьких букв и цифр, старший домен только из символов количеством больше
+private val EMAIL_REGEX = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{2,}$")
 
 
 
@@ -76,9 +82,9 @@ fun SignUpScreen(
     val passwordVisible = remember { mutableStateOf(false) }
     val agreementChecked = remember { mutableStateOf(false) }
 
-    val disabledColor = Color(0xFF2B6B8B)
-    val enabledColor = Color(0xFF48B2E7)
 
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
@@ -97,7 +103,11 @@ fun SignUpScreen(
                     onClick = onBackClick,
                     shape = CircleShape,
                     modifier = Modifier.size(width = 44.dp, height = 44.dp),
-                    contentPadding = PaddingValues(0.dp)
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = BackgroundColor // HEX F7F7F9
+                    ),
+
                 ) {
                     Icon(
                         imageVector = Icons.Filled.KeyboardArrowLeft,
@@ -116,14 +126,14 @@ fun SignUpScreen(
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    text = "Регистрация",
+                    text = stringResource(id = R.string.register),
                     color = TextColor,
                     style = RalewayTypography.headingRegular32,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Заполните Свои Данные",
+                    text = stringResource(id = R.string.details),
                     style = RalewayTypography.subtitleRegular16,
                     color = SubTextDarkColor,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -138,7 +148,7 @@ fun SignUpScreen(
                 ) {
                     // Имя
                     Text(
-                        text = "Ваше имя",
+                        text = stringResource(id = R.string.name),
                         style = RalewayTypography.bodyMedium16,
                         color = TextColor,
                     )
@@ -209,8 +219,11 @@ fun SignUpScreen(
                     Spacer(Modifier.height(12.dp))
 
                     // Пароль
+                    // 4. Экран «Register Account». Реализовать возможность отображения пароля.
+                    //  5. Экран «Register Account». Реализовать корректное отображение иконки при
+                    //  отображении и скрытии пароля.
                     Text(
-                        text = "Пароль",
+                        text = stringResource(id = R.string.pass),
                         style = RalewayTypography.bodyMedium16,
                         color = TextColor,
                     )
@@ -290,7 +303,7 @@ fun SignUpScreen(
                         )
 
                         Text(
-                            text = "Даю согласие на обработку\nперсональных данных",
+                            text = stringResource(id = R.string.agree),
                             color = HintColor,
                             style = RalewayTypography.bodyRegular16.copy(
                                 textDecoration = TextDecoration.Underline
@@ -301,6 +314,16 @@ fun SignUpScreen(
 
                     Spacer(Modifier.height(24.dp))
 
+                    //  9. В случае получения ошибки от сервера или отсутствия соединения с сетью
+                    //  Интернет, отобразить соответствующий текст ошибки в диалоговом окне.
+                    //  6. Экран «Register Account». Кнопка «Зарегистрироваться» должна быть
+                    //  активна только при согласии с Условиями и политикой конфиденциальности.
+                    // 8. Экран «Register Account». При нажатии на кнопку «Зарегистрироваться»
+                    // реализовать отправку запроса на сервер для регистрации с помощью почты и пароля.
+                    if (showErrorDialog) {
+                        ErrorDialog(errorMessage = errorMessage, onDismiss = { showErrorDialog = false })
+                    }
+
                     Button(
                         onClick = {
                             viewModel.email = email
@@ -308,7 +331,9 @@ fun SignUpScreen(
 
                             viewModel.signUp(
                                 onSuccess = onRegistrationSuccess,
-                                onError = { error -> Toast.makeText(context, error, Toast.LENGTH_LONG).show() }
+                                onError = { error ->
+                                    errorMessage = error
+                                    showErrorDialog = true }
                             )
                         },
                         enabled = agreementChecked.value &&
@@ -329,7 +354,7 @@ fun SignUpScreen(
 
                     ) {
                         Text(
-                            "Зарегистрироваться",
+                            stringResource(id = R.string.sign_up),
                             style = RalewayTypography.bodyRegular14,
                         )
                     }
@@ -345,12 +370,13 @@ fun SignUpScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Есть аккаунт? ",
+
+                    text = stringResource(id = R.string.have_acc),
                     color = HintColor,
                     style = RalewayTypography.bodyRegular16,
                 )
                 Text(
-                    text = "Войти",
+                    text = stringResource(id = R.string.sign_in),
                     color = TextColor,
                     style = RalewayTypography.bodyRegular16,
                     modifier = Modifier.clickable {
@@ -360,6 +386,19 @@ fun SignUpScreen(
             }
         }
     }
+}
+@Composable
+fun ErrorDialog(errorMessage: String, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Ошибка") },
+        text = { Text(errorMessage) },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("OK")
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true)

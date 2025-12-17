@@ -22,9 +22,23 @@ interface UserManagementService {
     @Headers("apikey: $SUPABASE_KEY")
     @POST("auth/v1/token?grant_type=password")
     suspend fun signIn(@Body signInRequest: SignInRequest): Response<SignInRequest>
-
+    @Headers("apikey: $SUPABASE_KEY")
     @POST("auth/v1/recover")
     suspend fun recoverPassword(
         @Body forgotPasswordRequest: ForgotPasswordRequest
     ): Response<ForgotPasswordResponse>
+
+    // 1. Запрос нового кода (OTP)
+    @Headers("apikey: $SUPABASE_KEY")
+    @POST("your-otp-endpoint/request")              // TODO: замени на свой путь
+    suspend fun requestOtp(
+        @Body request: OtpRequest                   // TODO: создай свою модель (например, с email)
+    ): Response<OtpRequestResponse>                 // или другой тип ответа
+
+    // 2. Проверка кода на сервере
+    @Headers("apikey: $SUPABASE_KEY")
+    @POST("your-otp-endpoint/verify")               // TODO: замени на свой путь
+    suspend fun verifyOtp(
+        @Body request: OtpVerifyRequest             // модель с кодом (и email, если нужно)
+    ): Response<OtpVerifyResponse>                  // тип ответа сервера
 }

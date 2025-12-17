@@ -33,10 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,6 +51,7 @@ import com.example.up_piatnitskii.ui.theme.RalewayTypography
 import com.example.up_piatnitskii.ui.theme.SubTextDarkColor
 import com.example.up_piatnitskii.ui.theme.TextColor
 
+//18. Создать экран «Forgot Password», как на макете.
 private val EMAIL_REGEX = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
 @Composable
@@ -60,6 +64,9 @@ fun ForgotPassword(
 
     var email by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
         Column(
@@ -72,13 +79,18 @@ fun ForgotPassword(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
-            ) {
+            ) { //21. Экран «Forgot Password». Реализовать возможность перехода на экран «Sign
+                //In» при нажатии на кнопку «Назад».
                 ElevatedButton(
                     onClick = onBackClick,
                     shape = CircleShape,
                     modifier = Modifier.size(width = 44.dp, height = 44.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = BackgroundColor // HEX F7F7F9
+                    ),
+
+                    ) {
                     Icon(
                         imageVector = Icons.Filled.KeyboardArrowLeft,
                         contentDescription = "Назад",
@@ -86,6 +98,7 @@ fun ForgotPassword(
                     )
                 }
             }
+
 
             // Центральная часть
             Column(
@@ -96,17 +109,18 @@ fun ForgotPassword(
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    text = "Забыл пароль",
+                    text = stringResource(id = R.string.forgot_password),
                     color = TextColor,
                     style = RalewayTypography.headingRegular32,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Введите свою учетную запись\nдля сброса",
+                    text = stringResource(id = R.string.enter_email_to_reset),
                     style = RalewayTypography.subtitleRegular16,
                     color = SubTextDarkColor,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(Modifier.height(54.dp))
@@ -118,7 +132,7 @@ fun ForgotPassword(
                 ) {
                     // Email
                     Text(
-                        text = "Email",
+                        text = stringResource(id = R.string.email),
                         style = RalewayTypography.bodyMedium16,
                         color = TextColor,
                     )
@@ -153,10 +167,32 @@ fun ForgotPassword(
 
                     Spacer(Modifier.height(24.dp))
 
+                    //20. Экран «Forgot Password». При нажатии на диалоговое окно, осуществить
+                    //переход на экран «OTP Verification».
+                    if (showSuccessDialog) {
+                        ForgotPasswordSuccessDialog(
+                            onClick = {
+                                showSuccessDialog = false
+                                onOTPClick()           // переход на экран OTP Verification
+                            },
+                            onDismiss = { showSuccessDialog = false }
+                        )
+                    }
+                    // Кнопка "Отправить"
                     Button(
                         onClick = {
-                            onOTPClick()
+                            // 22. Отправка запроса на сервер для получения кода
+                            viewModel.forgotPassword(
+                                email = email,
+                                onSuccess = {
+                                    showSuccessDialog = true   // 19: показать диалог
+                                },
+                                onError = { error ->
+                                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                                }
+                            )
                         },
+
                         enabled = email.isNotBlank(),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -170,7 +206,7 @@ fun ForgotPassword(
                         )
                     ) {
                         Text(
-                            "Отправить",
+                            stringResource(id = R.string.send),
                             style = RalewayTypography.bodyRegular14,
                         )
                     }
@@ -178,4 +214,58 @@ fun ForgotPassword(
             }
         }
     }
+}
+
+//19. Экран «Forgot Password». При нажатии на кнопку «Отправить», при наличии
+//в поле ввода корректного e-mail, отобразить диалоговое окно, как на макете.
+@Composable
+fun ForgotPasswordSuccessDialog(
+    onClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            // Кнопка нам не нужна, кликаем по всей карточке
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onClick() },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Иконка сверху
+                Surface(
+                    shape = CircleShape,
+                    color = Color(0xFF48B2E7),
+                    modifier = Modifier.size(56.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.group_1000000818), // своя иконка конверта
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                }
+
+                Text(
+                    text = "Проверьте ваш Email",
+                    style = RalewayTypography.bodyMedium16,
+                    color = TextColor
+                )
+
+                Text(
+                    text = "Мы отправили код восстановления пароля на вашу электронную почту.",
+                    style = RalewayTypography.bodyRegular14,
+                    color = SubTextDarkColor,
+                    textAlign = TextAlign.Center
+                )
+            }
+        },
+        shape = RoundedCornerShape(20.dp),
+        containerColor = Color.White
+    )
 }

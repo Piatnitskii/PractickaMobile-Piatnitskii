@@ -8,7 +8,7 @@ import java.net.Proxy
 import com.example.up_piatnitskii.data.service.UserManagementService
 
 object RetrofitInstance {
-    const val SUPABASE_URL = "https://agqelufzhvlooeaueidk.supabase.co"
+    const val SUPABASE_URL = "https://agqelufzhvlooeaueidk.supabase.co/"
 
     var proxy: Proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress("10.207.106.77", 3128))
     //var client: OkHttpClient = OkHttpClient.Builder().proxy(proxy).build()
