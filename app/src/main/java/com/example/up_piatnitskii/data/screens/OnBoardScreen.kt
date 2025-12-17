@@ -87,9 +87,10 @@ fun OnboardScreen(
                     brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.4f), // Начинаем с более темного
-                            Color.Black.copy(alpha = 0.6f), // Средняя часть темнее
-                            Color.Black.copy(alpha = 0.7f)  // Самый низ - почти черный
+                            Color.Black.copy(alpha = 0.2f),
+                            Color.Black.copy(alpha = 0.3f),
+                            Color.Black.copy(alpha = 0.4f),
+                            Color.Black.copy(alpha = 0.45f)
                         ),
                         startY = 0f,
                         endY = Float.POSITIVE_INFINITY
@@ -111,20 +112,20 @@ fun OnboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 repeat(slides.size) { index ->
-                    val size = animateDpAsState(
-                        targetValue = if (pagerState.currentPage == index) 12.dp else 8.dp
+                    val width = animateDpAsState(
+                        targetValue = if (pagerState.currentPage == index) 48.dp else 32.dp
                     )
-                    val dotColor = if (pagerState.currentPage == index) {
+                    val lineColor = if (pagerState.currentPage == index) {
                         Color.White
                     } else {
-                        Color.White.copy(alpha = 0.5f)
+                        Color.Gray
                     }
 
                     Box(
                         modifier = Modifier
-                            .size(size.value)
-                            .clip(CircleShape)
-                            .background(dotColor)
+                            .width(width.value)
+                            .height(4.dp)
+                            .background(lineColor, shape = RoundedCornerShape(2.dp))
                     )
                 }
             }
@@ -184,13 +185,13 @@ private fun FirstSlideContent(slide: OnboardingSlide) {
     Text(
         text = slide.title,
         style = RalewayTypography.headingRegular32.copy(
-            fontWeight = FontWeight.ExtraBold,
+            fontWeight = FontWeight.Bold,
             color = Color.White,
             textAlign = TextAlign.Center
         ),
         modifier = Modifier
             .padding(horizontal = 24.dp)
-            .padding(top = 48.dp, bottom = 40.dp)
+            .padding(top = 48.dp)
     )
 
     // Картинка под заголовком

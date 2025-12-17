@@ -11,9 +11,9 @@ object RetrofitInstance {
     const val SUPABASE_URL = "https://agqelufzhvlooeaueidk.supabase.co"
 
     var proxy: Proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress("10.207.106.77", 3128))
-    var client: OkHttpClient = OkHttpClient.Builder().proxy(proxy).build()
+    //var client: OkHttpClient = OkHttpClient.Builder().proxy(proxy).build()
 
-    //var client: OkHttpClient = OkHttpClient.Builder().build()
+    var client: OkHttpClient = OkHttpClient.Builder().build()
     private val retrofit = Retrofit.Builder()
         .baseUrl(SUPABASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
