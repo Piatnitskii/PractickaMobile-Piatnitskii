@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.ui.theme.BackgroundColor
 import com.example.up_piatnitskii.ui.theme.HintColor
@@ -52,7 +53,10 @@ private val EMAIL_REGEX = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 fun ForgotPassword(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
+    onOTPClick: () -> Unit = {},
+    viewModel: ForgotPasswordViewModel = viewModel()
 ) {
+
     var email by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf(false) }
 
@@ -150,15 +154,14 @@ fun ForgotPassword(
 
                     Button(
                         onClick = {
-                            // Логика отправки
+                            onOTPClick()
                         },
-                        enabled = email.isNotBlank() && !emailError, // ← ИСПРАВЛЕНО!
+                        enabled = email.isNotBlank(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
-                            // ← ИСПРАВЛЕНО: полный if-else или enabled
                             containerColor = Color(0xFF48B2E7),
                             contentColor = Color.White,
                             disabledContainerColor = Color(0xFF2B6B8B),

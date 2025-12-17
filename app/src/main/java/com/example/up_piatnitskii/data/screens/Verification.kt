@@ -49,7 +49,7 @@ import kotlinx.coroutines.delay
 
 private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
-// СОЗДАНИЕ ЭКРАНА ВВОДА КОДА ОТР, Томин Андрей, 15.12.2025
+
 @Composable
 fun Verfication() {
 
@@ -157,7 +157,6 @@ fun Verfication() {
     }
 }
 
-// СОЗДАНИЕ ПОЛЯ OTP, Томин Андрей, 16.12.2025
 @Composable
 fun OtpField(
     value: String,

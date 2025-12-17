@@ -321,13 +321,11 @@ fun SignUpScreen(
                         shape = RoundedCornerShape(14.dp),
 
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (agreementChecked.value &&
-                                name.isNotBlank() &&
-                                email.isNotBlank() &&
-                                password.isNotBlank()) enabledColor else disabledColor,
+                            containerColor = Color(0xFF48B2E7),
                             contentColor = Color.White,
-                            disabledContentColor = Color.White.copy(alpha = 0.7f)
-                        )
+                            disabledContainerColor = Color(0xFF2B6B8B),
+                            disabledContentColor = Color.White
+                        ),
 
                     ) {
                         Text(

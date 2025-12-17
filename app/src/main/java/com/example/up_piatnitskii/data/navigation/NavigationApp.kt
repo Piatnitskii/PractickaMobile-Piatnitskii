@@ -16,13 +16,21 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.up_piatnitskii.data.screens.CreateNewPassword
 import com.example.up_piatnitskii.data.screens.ForgotPassword
 import com.example.up_piatnitskii.data.screens.SignInScreen
+import com.example.up_piatnitskii.data.screens.Verfication
 import com.example.up_piatnitskii.data.viewModel.SignInViewModel
 
 
 @Composable
-fun NavigationApp(navController: NavHostController, signUpViewModel: SignUpViewModel, signInViewModel: SignInViewModel, context: Context) {
+fun NavigationApp(
+                    navController: NavHostController,
+                  signUpViewModel: SignUpViewModel,
+                  signInViewModel: SignInViewModel,
+                  context: Context
+)
+{
     NavHost(
         navController = navController,
         startDestination = "sign_up"
@@ -43,8 +51,19 @@ fun NavigationApp(navController: NavHostController, signUpViewModel: SignUpViewM
             )
         }
         composable("ForgotPassword") {
-            ForgotPassword()
+            ForgotPassword(
+                onOTPClick = {navController.navigate("Verification")},
+            )
         }
+
+        composable("Verification") {
+            Verfication()
+        }
+
+        composable("CreateNewPassword") {
+            CreateNewPassword()
+        }
+
         composable("sign_in") {
             SignInScreen(
                 viewModel = signInViewModel,
