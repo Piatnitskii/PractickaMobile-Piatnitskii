@@ -6,6 +6,7 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +32,7 @@ import androidx.core.content.FileProvider
 import coil3.compose.rememberAsyncImagePainter
 import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.data.components.DisableButton
+import com.example.up_piatnitskii.ui.theme.BackgroundColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
 import java.io.File
 import java.text.SimpleDateFormat
@@ -206,6 +208,15 @@ fun ProfileScreen() {
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            BarcodeCard(
+                onClick = {
+                    // TODO: действие по нажатию на штрих‑код
+                    // например, открыть полный экран с кодом
+                }
+            )
+            Spacer(modifier = Modifier.height(24.dp))
             // Поля профиля
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -265,6 +276,41 @@ fun ProfileScreen() {
         }
     }
 }
+@Composable
+fun BarcodeCard(
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(65.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF7F7FF)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+
+            // Сам штрих‑код
+            Image(
+                painter = painterResource(id = R.drawable._ae2187166e1c92b6c12b24707d7e7e7_1), // картинка со штрих‑кодом
+                contentDescription = "Штрих‑код",
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f),
+                contentScale = ContentScale.FillHeight
+            )
+        }
+    }
+}
 
 @Composable
 private fun InputField(
@@ -280,15 +326,18 @@ private fun InputField(
             style = RalewayTypography.bodyMedium16.copy(
                 fontWeight = FontWeight.Medium
             ),
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
         // Поле (non-editable)
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            color = Color(0xFFF5F5F5),
-            border = CardDefaults.outlinedCardBorder()
+            shape = RoundedCornerShape(14.dp),
+            color = BackgroundColor,
+            border = BorderStroke(
+                width = 1.dp,
+                color = Color.White  // Белый цвет бордера
+            )
         ) {
             Box(
                 modifier = Modifier
@@ -332,10 +381,16 @@ private fun EditableField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             textStyle = RalewayTypography.bodyRegular16,
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF6200EE),
-                unfocusedBorderColor = Color(0xFFE0E0E0)
+                // Прозрачные границы
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                disabledBorderColor = Color.Transparent,
+                // Цвета фона
+                focusedContainerColor = BackgroundColor,
+                unfocusedContainerColor = BackgroundColor,
+                disabledContainerColor = BackgroundColor
             )
         )
     }
