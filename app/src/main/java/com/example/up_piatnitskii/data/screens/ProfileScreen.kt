@@ -32,29 +32,45 @@ import androidx.core.content.FileProvider
 import coil3.compose.rememberAsyncImagePainter
 import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.data.components.DisableButton
+import com.example.up_piatnitskii.data.viewModel.ProfileViewModel
+import com.example.up_piatnitskii.data.viewModel.SupabaseClient
 import com.example.up_piatnitskii.ui.theme.BackgroundColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.text.isNotEmpty
+import com.example.up_piatnitskii.data.Model.Profile
+
+import com.example.up_piatnitskii.data.viewModel.ProfileState
+import androidx.compose.runtime.collectAsState
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(viewModel: ProfileViewModel) {
     var isEditing by remember { mutableStateOf(false) }
-    var name by remember { mutableStateOf("Еmmanuel") }
-    var lastName by remember { mutableStateOf("Oyiboke") }
-    var address by remember { mutableStateOf("Nigeria") }
+    var name by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    val profileState: ProfileState by viewModel.profileState.collectAsState()
+
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile(context)
+    }
 
     // Проверка, изменились ли данные
     val hasChanges by remember(name, lastName, address, phone) {
         derivedStateOf {
-            name != "Еmmanuel" || lastName != "Oyiboke" || address != "Nigeria" || phone != ""
+            name != "" || lastName != "" || address != "" || phone != ""
         }
     }
 
-    val context = LocalContext.current
     // РАБОТА С ФОТО
     var tempFhotoFile by remember { mutableStateOf<File?>(null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -67,8 +83,7 @@ fun ProfileScreen() {
                 tempFhotoFile?.let { file ->
                     selectedImageUri = Uri.fromFile(file)
                 }
-            }
-            else {
+            } else {
                 Toast.makeText(context, "Ошибка при съёмке фото", Toast.LENGTH_SHORT).show()
                 selectedImageUri = null
             }
@@ -78,8 +93,7 @@ fun ProfileScreen() {
     fun createImageFile(): File {
         val timeStamp = SimpleDateFormat("ddMMyyyy_HHmmss", java.util.Locale.getDefault()).format(Date())
         val storageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile("JPEG_${timeStamp}_",".jpg", storageDirectory
-        ).apply {
+        return File.createTempFile("JPEG_${timeStamp}_",".jpg", storageDirectory).apply {
             createNewFile()
         }
     }
@@ -94,8 +108,7 @@ fun ProfileScreen() {
                 photoFile
             )
             cameraLauncher.launch(photoUri)
-        }
-        catch (e: Exception){
+        } catch (e: Exception) {
             Toast.makeText(context, "Ошибка при съёмке фото\n"+e.message.toString(), Toast.LENGTH_SHORT).show()
         }
     }
@@ -105,177 +118,214 @@ fun ProfileScreen() {
         onResult = { isSuccess ->
             if (isSuccess) {
                 openCamera()
-            }
-            else {
+            } else {
                 Toast.makeText(context, "Ошибка", Toast.LENGTH_SHORT).show()
             }
-
         }
     )
-
     // проверяет/запрашивает доступ к камере
     fun checkCameraPermissonAndOpen(){
         val permission = Manifest.permission.CAMERA
         cameraPermissionLauncher.launch(permission)
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            // Верхняя часть с заголовком и кнопкой редактирования
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+    when (val state = profileState) {
+        is ProfileState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                // Пустое место для балансировки
-                Spacer(modifier = Modifier.size(40.dp))
-                // Заголовок по центру
-                Text(
-                    text = stringResource(id = R.string.profile),
-                    style = RalewayTypography.headingSemiBold16,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
-                )
-                // Кнопка редактирования/отмены
-                IconButton(
-                    onClick = {
-                        if (isEditing) {
-                            // Отмена редактирования - возвращаем оригинальные значения
-                            name = "Еmmanuel"
-                            lastName = "Oyiboke"
-                            address = "Nigeria"
-                            phone = ""
-                        }
-                        isEditing = !isEditing
-                    },
-                    modifier = Modifier.size(40.dp)
+                CircularProgressIndicator()
+            }
+        }
+        is ProfileState.Success -> {
+
+
+            Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id =
-                            if (isEditing) R.drawable.edit else R.drawable.edit
-                        ),
-                        contentDescription = if (isEditing) "Отмена" else "Редактировать",
-                        tint = Color.Gray
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Аватар по центру
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFE0E0E0))
-                ){
-                    Image(
+                    // Верхняя часть с заголовком и кнопкой редактирования
+                    Row(
                         modifier = Modifier
-                            .width(148.dp)
-                            .height(123.dp)
-                            .padding(bottom = 7.dp)
-                            .clickable { checkCameraPermissonAndOpen() }
-                            .clip(RoundedCornerShape(60.dp)),
-                        painter = if (selectedImageUri != null) {
-                            rememberAsyncImagePainter(selectedImageUri)
+                            .fillMaxWidth()
+                            .padding(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(modifier = Modifier.size(40.dp))
+                        Text(
+                            text = stringResource(id = R.string.profile),
+                            style = RalewayTypography.headingSemiBold16,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = {
+                                if (isEditing) {
+                                    name = state.profile.firstname ?: ""
+                                    lastName = state.profile.lastname ?: ""
+                                    address = state.profile.address ?: ""
+                                    phone = state.profile.phone ?: ""
+                                }
+                                isEditing = !isEditing
+                            },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = if (isEditing) R.drawable.edit else R.drawable.edit),
+                                contentDescription = if (isEditing) "Отмена" else "Редактировать",
+                                tint = Color.Gray
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Аватар по центру
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFE0E0E0))
+                        ) {
+                            Image(
+                                modifier = Modifier
+                                    .width(148.dp)
+                                    .height(123.dp)
+                                    .padding(bottom = 7.dp)
+                                    .clickable { checkCameraPermissonAndOpen() }
+                                    .clip(RoundedCornerShape(60.dp)),
+                                painter = if (selectedImageUri != null) {
+                                    rememberAsyncImagePainter(selectedImageUri)
+                                } else {
+                                    painterResource(id = R.drawable.group_1)
+                                },
+                                contentDescription = "Фото пациента",
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "$name $lastName",
+                            style = RalewayTypography.bodyRegular20
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    BarcodeCard(
+                        onClick = {
+                            // TODO: действие по нажатию на штрих-код
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Поля профиля
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (isEditing) {
+                            EditableField(
+                                label = stringResource(id = R.string.your_name),
+                                value = name,
+                                onValueChange = { name = it }
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            EditableField(
+                                label = stringResource(id = R.string.last_name),
+                                value = lastName,
+                                onValueChange = { lastName = it }
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            EditableField(
+                                label = stringResource(id = R.string.address),
+                                value = address,
+                                onValueChange = { address = it }
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            EditableField(
+                                label = stringResource(id = R.string.phone_number),
+                                value = phone,
+                                onValueChange = { phone = it }
+                            )
                         } else {
-                            painterResource(id = R.drawable.group_1) // Иконка камеры по умолчанию
-                        },
-                        contentDescription = "Фото пациента",
-                        contentScale = ContentScale.Crop
-                    )
+                            InputField(label = stringResource(id = R.string.your_name), value = name)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            InputField(label = stringResource(id = R.string.last_name), value = lastName)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            InputField(label = stringResource(id = R.string.address), value = address)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            InputField(label = stringResource(id = R.string.phone_number), value = phone)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Кнопка сохранения (только в режиме редактирования)
+                    if (isEditing) {
+                        DisableButton(
+                            text = "Сохранить",
+                            onClick = {
+                                val updatedProfile = Profile(
+                                    firstname = name,
+                                    lastname = lastName,
+                                    address = address,
+                                    phone = phone
+                                )
+                                viewModel.updateProfile(context, updatedProfile)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            enabled = hasChanges
+                        )
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Имя пользователя
-                Text(
-                    text = "Еmmanuel Oyiboke",
-                    style = RalewayTypography.bodyRegular20
-                )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            BarcodeCard(
-                onClick = {
-                    // TODO: действие по нажатию на штрих‑код
-                    // например, открыть полный экран с кодом
-                }
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            // Поля профиля
-            Column(
-                modifier = Modifier.fillMaxWidth()
+        }
+        is ProfileState.Error -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                if (isEditing) {
-                    EditableField(
-                        label = stringResource(id = R.string.your_name),
-                        value = name,
-                        onValueChange = { name = it }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EditableField(
-                        label = stringResource(id = R.string.last_name),
-                        value = lastName,
-                        onValueChange = { lastName = it }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EditableField(
-                        label = stringResource(id = R.string.address),
-                        value = address,
-                        onValueChange = { address = it }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EditableField(
-                        label = stringResource(id = R.string.phone_number),
-                        value = phone,
-                        onValueChange = { phone = it }
-                    )
-                } else {
-                    InputField(label = stringResource(id = R.string.your_name), value = name)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    InputField(label = stringResource(id = R.string.last_name), value = lastName)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    InputField(label = stringResource(id = R.string.address), value = address)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    InputField(label = stringResource(id = R.string.phone_number), value = phone)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("Ошибка: ${state.message}")
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(onClick = { viewModel.loadProfile(context) }) {
+                        Text("Повторить")
+                    }
                 }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Кнопка сохранения (только в режиме редактирования)
-            if (isEditing) {
-                DisableButton(
-                    text = "Сохранить",
-                    onClick = {
-                        // Здесь логика сохранения данных
-                        // Например, вызов ViewModel для сохранения
-                        isEditing = false
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    enabled = hasChanges // Кнопка активна только если есть изменения
-                )
             }
         }
     }
+
+    // Диалог ошибки
+    if (showErrorDialog) {
+        AlertDialog(
+            onDismissRequest = { showErrorDialog = false },
+            title = { Text("Ошибка") },
+            text = { Text(errorMessage) },
+            confirmButton = {
+                Button(onClick = { showErrorDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 }
+
 @Composable
 fun BarcodeCard(
     onClick: () -> Unit
@@ -297,12 +347,9 @@ fun BarcodeCard(
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-
-            // Сам штрих‑код
             Image(
-                painter = painterResource(id = R.drawable._ae2187166e1c92b6c12b24707d7e7e7_1), // картинка со штрих‑кодом
-                contentDescription = "Штрих‑код",
+                painter = painterResource(id = R.drawable._ae2187166e1c92b6c12b24707d7e7e7_1),
+                contentDescription = "Штрих-код",
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f),
@@ -320,7 +367,6 @@ private fun InputField(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Подпись
         Text(
             text = label,
             style = RalewayTypography.bodyMedium16.copy(
@@ -328,15 +374,13 @@ private fun InputField(
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
-
-        // Поле (non-editable)
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
             color = BackgroundColor,
             border = BorderStroke(
                 width = 1.dp,
-                color = Color.White  // Белый цвет бордера
+                color = Color.White
             )
         ) {
             Box(
@@ -366,7 +410,6 @@ private fun EditableField(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Подпись
         Text(
             text = label,
             style = RalewayTypography.bodyMedium16.copy(
@@ -374,8 +417,6 @@ private fun EditableField(
             ),
             modifier = Modifier.padding(bottom = 8.dp)
         )
-
-        // Поле для редактирования
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -383,11 +424,9 @@ private fun EditableField(
             textStyle = RalewayTypography.bodyRegular16,
             shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                // Прозрачные границы
                 focusedBorderColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,
                 disabledBorderColor = Color.Transparent,
-                // Цвета фона
                 focusedContainerColor = BackgroundColor,
                 unfocusedContainerColor = BackgroundColor,
                 disabledContainerColor = BackgroundColor
@@ -399,5 +438,5 @@ private fun EditableField(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    //ProfileScreen(viewModel = ProfileViewModel(SupabaseClient()))
 }

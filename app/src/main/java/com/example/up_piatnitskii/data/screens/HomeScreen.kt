@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import com.example.up_piatnitskii.data.Model.Product
 import com.example.up_piatnitskii.data.Model.Category
 import com.example.up_piatnitskii.data.components.ProductCard
+import com.example.up_piatnitskii.data.viewModel.ProfileViewModel
+import com.example.up_piatnitskii.data.viewModel.SupabaseClient
 import com.example.up_piatnitskii.ui.theme.AccentColor
 import com.example.up_piatnitskii.ui.theme.BackgroundColor
 import com.example.up_piatnitskii.ui.theme.HintColor
@@ -344,7 +346,8 @@ fun HomeScreen(
                         }
                     }
                     3 -> {
-                        ProfileScreen()
+                        val viewModel = remember { ProfileViewModel(SupabaseClient()) }
+                        ProfileScreen(viewModel = viewModel)
                     }
                 }
             }
