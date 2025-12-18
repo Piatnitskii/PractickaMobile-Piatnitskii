@@ -35,7 +35,13 @@ import androidx.compose.ui.unit.sp
 import com.example.up_piatnitskii.data.Model.Product
 import com.example.up_piatnitskii.data.Model.Category
 import com.example.up_piatnitskii.data.components.ProductCard
+import com.example.up_piatnitskii.ui.theme.AccentColor
+import com.example.up_piatnitskii.ui.theme.BackgroundColor
+import com.example.up_piatnitskii.ui.theme.HintColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
+import com.example.up_piatnitskii.ui.theme.SubTextDarkColor
+import com.example.up_piatnitskii.ui.theme.SubTextLightColor
+import com.example.up_piatnitskii.ui.theme.TextColor
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,7 +108,8 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .height(80.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+
             ) {
                 // Фоновая картинка
                 Image(
@@ -152,7 +159,7 @@ fun HomeScreen(
                         FloatingActionButton(
                             onClick = { onCartClick() },
                             modifier = Modifier.size(56.dp),
-                            containerColor = MaterialTheme.colorScheme.primary,
+                            containerColor = AccentColor,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ) {
                             Icon(
@@ -191,7 +198,7 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(Color.White)
+                .background(BackgroundColor)
         ) {
             // Верхняя панель с заголовком, поиском и настройками (только для главной вкладки)
             if (selected == 0) {
@@ -205,7 +212,7 @@ fun HomeScreen(
                         style = RalewayTypography.headingRegular32,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 12.dp),
+                            .padding(bottom = 24.dp),
                         textAlign = TextAlign.Center
                     )
 
@@ -230,8 +237,9 @@ fun HomeScreen(
                                     .height(48.dp),
                                 placeholder = {
                                     Text(
-                                        text = "Поиск...",
-                                        style = RalewayTypography.bodyRegular14
+                                        text = stringResource(id = R.string.search),
+                                        style = RalewayTypography.bodyRegular14,
+                                        color = HintColor
                                     )
                                 },
                                 leadingIcon = {
@@ -242,9 +250,10 @@ fun HomeScreen(
                                     )
                                 },
                                 shape = RoundedCornerShape(12.dp),
+
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color.Gray,
-                                    unfocusedBorderColor = Color.LightGray,
+                                    focusedBorderColor = Color.White,
+                                    unfocusedBorderColor = Color.White,
                                     focusedContainerColor = Color.White,
                                     unfocusedContainerColor = Color.White
                                 )
@@ -258,7 +267,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
+                                .background(AccentColor)
                                 .clickable { onSettingsClick() },
                             contentAlignment = Alignment.Center
                         ) {
@@ -353,7 +362,7 @@ private fun CategorySection(
         Text(
             text = stringResource(id = R.string.categories),
             style = RalewayTypography.bodyMedium16,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
         LazyRow(
@@ -379,14 +388,14 @@ private fun CategoryChip(
     Surface(
         modifier = Modifier
             .clickable { onClick() }
-            .clip(RoundedCornerShape(16.dp)),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFFF5F5F5),
-        contentColor = if (isSelected) Color.White else Color.Black
+            .clip(RoundedCornerShape(8.dp)),
+        color = if (isSelected) AccentColor else Color.White,
+        contentColor = if (isSelected) Color.White else TextColor
     ) {
         Text(
             text = category,
             style = RalewayTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 42.dp, vertical = 8.dp)
         )
     }
 }
@@ -400,9 +409,10 @@ private fun PopularSection(
     Column {
         // Заголовок раздела
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            
         ) {
             Text(
                 text = stringResource(id = R.string.popular),
@@ -411,14 +421,14 @@ private fun PopularSection(
             Text(
                 text = "Все",
                 style = RalewayTypography.bodyRegular12,
-                color = MaterialTheme.colorScheme.primary,
+                color = AccentColor,
                 modifier = Modifier.clickable {
                     // Навигация на все популярные товары
                 }
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Список товаров
         LazyRow(
@@ -447,63 +457,25 @@ private fun PromotionsSection() {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(120.dp)
+                .clickable {  },
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF4CAF50)
-            )
+                containerColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Левая часть с текстом
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Summer Sale",
-                        style = RalewayTypography.headingRegular32.copy(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "15% OFF",
-                        style = RalewayTypography.headingRegular32.copy(
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
-                        )
-                    )
-                }
-
-                // Правая часть с кнопкой
-                TextButton(
-                    onClick = {
-                        // Навигация на акции
-                    },
-                    modifier = Modifier
-                        .background(Color.White, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Смотреть",
-                        style = RalewayTypography.bodyMedium16.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50)
-                        )
-                    )
-                }
-            }
+            Image(
+                painter = painterResource(
+                    R.drawable.frame_1000000849
+                ),
+                contentDescription = "Summer sale",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
         }
     }
+
 }
 
 @Preview(showBackground = true, showSystemUi = true)

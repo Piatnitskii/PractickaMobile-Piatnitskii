@@ -16,9 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.data.Model.Product
+import com.example.up_piatnitskii.ui.theme.AccentColor
+import com.example.up_piatnitskii.ui.theme.HintColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
 
 @Composable
@@ -51,7 +55,7 @@ fun ProductCard(
                     Image(
                         painter = painterResource(id = product.imageResId),
                         contentDescription = product.name,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
@@ -70,7 +74,7 @@ fun ProductCard(
                         onFavoriteClick()
                     },
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.TopStart)
                         .padding(8.dp)
                 ) {
                     Icon(
@@ -90,16 +94,17 @@ fun ProductCard(
                 Text(
                     text = product.category,
                     style = RalewayTypography.bodyRegular12,
-                    color = MaterialTheme.colorScheme.primary
+                    color = AccentColor
                 )
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = product.name,
                     style = RalewayTypography.bodyRegular16,
                     maxLines = 1,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = HintColor
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically
