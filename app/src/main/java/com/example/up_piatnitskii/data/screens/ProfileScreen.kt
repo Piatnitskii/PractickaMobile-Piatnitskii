@@ -1,24 +1,40 @@
 package com.example.up_piatnitskii.data.screens
 
+import android.Manifest
+import android.net.Uri
+import android.os.Environment
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import coil3.compose.rememberAsyncImagePainter
 import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.data.components.DisableButton
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
 import kotlin.text.isNotEmpty
 
 @Composable
@@ -34,6 +50,71 @@ fun ProfileScreen() {
         derivedStateOf {
             name != "Еmmanuel" || lastName != "Oyiboke" || address != "Nigeria" || phone != ""
         }
+    }
+
+    val context = LocalContext.current
+    // РАБОТА С ФОТО
+    var tempFhotoFile by remember { mutableStateOf<File?>(null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // запускает системное приложение камеры
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { isSuccess ->
+            if (isSuccess) {
+                tempFhotoFile?.let { file ->
+                    selectedImageUri = Uri.fromFile(file)
+                }
+            }
+            else {
+                Toast.makeText(context, "Ошибка при съёмке фото", Toast.LENGTH_SHORT).show()
+                selectedImageUri = null
+            }
+        }
+    )
+    // создает временный файл для фото с timestamp в названии
+    fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("ddMMyyyy_HHmmss", java.util.Locale.getDefault()).format(Date())
+        val storageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile("JPEG_${timeStamp}_",".jpg", storageDirectory
+        ).apply {
+            createNewFile()
+        }
+    }
+    // подготавливает URI и запускает камеру
+    fun openCamera() {
+        try {
+            val photoFile = createImageFile()
+            tempFhotoFile = photoFile
+            val photoUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                photoFile
+            )
+            cameraLauncher.launch(photoUri)
+        }
+        catch (e: Exception){
+            Toast.makeText(context, "Ошибка при съёмке фото\n"+e.message.toString(), Toast.LENGTH_SHORT).show()
+        }
+    }
+    // запрашивает разрешение CAMERA
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isSuccess ->
+            if (isSuccess) {
+                openCamera()
+            }
+            else {
+                Toast.makeText(context, "Ошибка", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+    )
+
+    // проверяет/запрашивает доступ к камере
+    fun checkCameraPermissonAndOpen(){
+        val permission = Manifest.permission.CAMERA
+        cameraPermissionLauncher.launch(permission)
     }
 
     Surface(
@@ -98,7 +179,23 @@ fun ProfileScreen() {
                         .size(100.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFE0E0E0))
-                )
+                ){
+                    Image(
+                        modifier = Modifier
+                            .width(148.dp)
+                            .height(123.dp)
+                            .padding(bottom = 7.dp)
+                            .clickable { checkCameraPermissonAndOpen() }
+                            .clip(RoundedCornerShape(60.dp)),
+                        painter = if (selectedImageUri != null) {
+                            rememberAsyncImagePainter(selectedImageUri)
+                        } else {
+                            painterResource(id = R.drawable.group_1) // Иконка камеры по умолчанию
+                        },
+                        contentDescription = "Фото пациента",
+                        contentScale = ContentScale.Crop
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
