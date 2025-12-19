@@ -47,8 +47,8 @@ class SignInViewModel (private val userDAO: UserDAO ): ViewModel() {
                                 val profileId = profile?.id
                                 saveProfileId(context, profileId)
                                 Log.v("SignIn", "ID профиля: $profileId")
+                                Log.v("SignIn", "Профиль успешно авторизован: ${SignInResponse.email}")
                             }
-                            Log.v("SignIn", "Профиль успешно авторизован: ${SignInResponse.email}")
                         }else{
                             val profileResponse = RetrofitInstance.userManagementService.getProfile("eq.$userId")
                             val profile = profileResponse.body()?.firstOrNull()
@@ -93,20 +93,21 @@ fun getUserId(context: Context): String? {
     return prefs.getString("user_id", null)
 }
 
-fun getProfileId(context: Context): String? {
-    val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-    return prefs.getString("profile_id", null)
-}
-
-fun saveProfileId(context: Context, profileId: String?) {
-    val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-    prefs.edit().putString("profile_id", profileId).apply()
-}
 
 fun saveUserId(context: Context, userId: String) {
     val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     prefs.edit().putString("user_id", userId).apply()
 }
+
+fun getProfileId(context: Context): String? {
+    val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    return prefs.getString("profile_id", null)
+}
+fun saveProfileId(context: Context, profileId: String?) {
+    val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    prefs.edit().putString("profile_id", profileId).apply()
+}
+
 //@OptIn(ExperimentalEncodingApi::class)
 data class JwtPayload(val sub: String)
 

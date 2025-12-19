@@ -11,6 +11,7 @@ import com.example.up_piatnitskii.data.Model.Profile
 import com.example.up_piatnitskii.data.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.String
 
 sealed class ProfileState {
     object Loading : ProfileState()
@@ -66,6 +67,7 @@ class SupabaseClient {
         val response = userManagementService.updateProfile(
             "eq.$Id",
             mapOf(
+                "id" to  Id,
                 "user_id" to userId,
                 "firstname" to (profile.firstname ?: ""),
                 "lastname" to (profile.lastname ?: ""),

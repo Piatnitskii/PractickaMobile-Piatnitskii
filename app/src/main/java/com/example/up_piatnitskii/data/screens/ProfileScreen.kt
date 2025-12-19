@@ -33,75 +33,85 @@ import coil3.compose.rememberAsyncImagePainter
 import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.data.components.DisableButton
 import com.example.up_piatnitskii.data.viewModel.ProfileViewModel
-import com.example.up_piatnitskii.data.viewModel.SupabaseClient
 import com.example.up_piatnitskii.ui.theme.BackgroundColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-import kotlin.text.isNotEmpty
 import com.example.up_piatnitskii.data.Model.Profile
-
 import com.example.up_piatnitskii.data.viewModel.ProfileState
 import androidx.compose.runtime.collectAsState
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel) {
     var isEditing by remember { mutableStateOf(false) }
+
     var name by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var profilePhotoUrl by remember { mutableStateOf<String?>(null) }  // ✅ URL из профиля
+
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
     val profileState: ProfileState by viewModel.profileState.collectAsState()
-
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.loadProfile(context)
     }
 
-    // Проверка, изменились ли данные
-    val hasChanges by remember(name, lastName, address, phone) {
-        derivedStateOf {
-            name != "" || lastName != "" || address != "" || phone != ""
+    // ✅ Обновление состояний при загрузке профиля
+    LaunchedEffect(profileState) {
+        if (profileState is ProfileState.Success) {
+            val state = profileState as ProfileState.Success
+            name = state.profile.firstname ?: ""
+            lastName = state.profile.lastname ?: ""
+            address = state.profile.address ?: ""
+            phone = state.profile.phone ?: ""
+            profilePhotoUrl = state.profile.photo
         }
     }
 
-    // РАБОТА С ФОТО
-    var tempFhotoFile by remember { mutableStateOf<File?>(null) }
+    // Проверка, изменились ли данные
+    val hasChanges by remember(name, lastName, address, phone) {
+        derivedStateOf {
+            name.isNotEmpty() || lastName.isNotEmpty() || address.isNotEmpty() || phone.isNotEmpty()
+        }
+    }
+
+    // РАБОТА С ФОТО - ТОЛЬКО В РЕЖИМЕ РЕДАКТИРОВАНИЯ
+    var tempPhotoFile by remember { mutableStateOf<File?>(null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
-    // запускает системное приложение камеры
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { isSuccess ->
-            if (isSuccess) {
-                tempFhotoFile?.let { file ->
+            if (isSuccess && isEditing) {
+                tempPhotoFile?.let { file ->
                     selectedImageUri = Uri.fromFile(file)
                 }
-            } else {
+            } else if (isEditing) {
                 Toast.makeText(context, "Ошибка при съёмке фото", Toast.LENGTH_SHORT).show()
                 selectedImageUri = null
             }
         }
     )
-    // создает временный файл для фото с timestamp в названии
+
     fun createImageFile(): File {
         val timeStamp = SimpleDateFormat("ddMMyyyy_HHmmss", java.util.Locale.getDefault()).format(Date())
         val storageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile("JPEG_${timeStamp}_",".jpg", storageDirectory).apply {
+        return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDirectory).apply {
             createNewFile()
         }
     }
-    // подготавливает URI и запускает камеру
+
     fun openCamera() {
+        if (!isEditing) return
         try {
             val photoFile = createImageFile()
-            tempFhotoFile = photoFile
+            tempPhotoFile = photoFile
             val photoUri = FileProvider.getUriForFile(
                 context,
                 "${context.packageName}.fileprovider",
@@ -109,38 +119,33 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             )
             cameraLauncher.launch(photoUri)
         } catch (e: Exception) {
-            Toast.makeText(context, "Ошибка при съёмке фото\n"+e.message.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Ошибка при съёмке фото\n${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-    // запрашивает разрешение CAMERA
+
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isSuccess ->
-            if (isSuccess) {
+            if (isSuccess && isEditing) {
                 openCamera()
-            } else {
-                Toast.makeText(context, "Ошибка", Toast.LENGTH_SHORT).show()
+            } else if (isEditing) {
+                Toast.makeText(context, "Разрешение на камеру отклонено", Toast.LENGTH_SHORT).show()
             }
         }
     )
-    // проверяет/запрашивает доступ к камере
-    fun checkCameraPermissonAndOpen(){
-        val permission = Manifest.permission.CAMERA
-        cameraPermissionLauncher.launch(permission)
+
+    fun checkCameraPermissionAndOpen() {
+        if (!isEditing) return
+        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
     }
 
     when (val state = profileState) {
         is ProfileState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
         is ProfileState.Success -> {
-
-
             Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
                 Column(
                     modifier = Modifier
@@ -165,10 +170,14 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                         IconButton(
                             onClick = {
                                 if (isEditing) {
+                                    // ✅ Сброс к данным из профиля
                                     name = state.profile.firstname ?: ""
                                     lastName = state.profile.lastname ?: ""
                                     address = state.profile.address ?: ""
                                     phone = state.profile.phone ?: ""
+                                    profilePhotoUrl = state.profile.photo
+                                    selectedImageUri = null
+                                    tempPhotoFile = null
                                 }
                                 isEditing = !isEditing
                             },
@@ -184,7 +193,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Аватар по центру
+                    // ✅ Аватар с правильной логикой фото
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -200,12 +209,27 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                                     .width(148.dp)
                                     .height(123.dp)
                                     .padding(bottom = 7.dp)
-                                    .clickable { checkCameraPermissonAndOpen() }
+                                    .then(
+                                        if (isEditing) {
+                                            Modifier.clickable {
+                                                checkCameraPermissionAndOpen()
+                                            }
+                                        } else {
+                                            Modifier
+                                        }
+                                    )
                                     .clip(RoundedCornerShape(60.dp)),
-                                painter = if (selectedImageUri != null) {
-                                    rememberAsyncImagePainter(selectedImageUri)
-                                } else {
-                                    painterResource(id = R.drawable.group_1)
+                                painter = when {
+                                    // 1. Новое фото из камеры
+                                    selectedImageUri != null -> {
+                                        rememberAsyncImagePainter(selectedImageUri)
+                                    }
+                                    // 2. Фото из профиля (URL)
+                                    profilePhotoUrl != null && profilePhotoUrl!!.isNotEmpty() -> {
+                                        rememberAsyncImagePainter(profilePhotoUrl)
+                                    }
+                                    // 3. Заглушка
+                                    else -> painterResource(id = R.drawable.group_1)
                                 },
                                 contentDescription = "Фото пациента",
                                 contentScale = ContentScale.Crop
@@ -222,66 +246,48 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    BarcodeCard(
-                        onClick = {
-                            // TODO: действие по нажатию на штрих-код
-                        }
-                    )
+                    BarcodeCard { /* TODO */ }
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Поля профиля
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
                         if (isEditing) {
-                            EditableField(
-                                label = stringResource(id = R.string.your_name),
-                                value = name,
-                                onValueChange = { name = it }
-                            )
+                            EditableField(stringResource(id = R.string.your_name), name) { name = it }
                             Spacer(modifier = Modifier.height(16.dp))
-                            EditableField(
-                                label = stringResource(id = R.string.last_name),
-                                value = lastName,
-                                onValueChange = { lastName = it }
-                            )
+                            EditableField(stringResource(id = R.string.last_name), lastName) { lastName = it }
                             Spacer(modifier = Modifier.height(16.dp))
-                            EditableField(
-                                label = stringResource(id = R.string.address),
-                                value = address,
-                                onValueChange = { address = it }
-                            )
+                            EditableField(stringResource(id = R.string.address), address) { address = it }
                             Spacer(modifier = Modifier.height(16.dp))
-                            EditableField(
-                                label = stringResource(id = R.string.phone_number),
-                                value = phone,
-                                onValueChange = { phone = it }
-                            )
+                            EditableField(stringResource(id = R.string.phone_number), phone) { phone = it }
                         } else {
-                            InputField(label = stringResource(id = R.string.your_name), value = name)
+                            InputField(stringResource(id = R.string.your_name), name)
                             Spacer(modifier = Modifier.height(16.dp))
-                            InputField(label = stringResource(id = R.string.last_name), value = lastName)
+                            InputField(stringResource(id = R.string.last_name), lastName)
                             Spacer(modifier = Modifier.height(16.dp))
-                            InputField(label = stringResource(id = R.string.address), value = address)
+                            InputField(stringResource(id = R.string.address), address)
                             Spacer(modifier = Modifier.height(16.dp))
-                            InputField(label = stringResource(id = R.string.phone_number), value = phone)
+                            InputField(stringResource(id = R.string.phone_number), phone)
                         }
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    // Кнопка сохранения (только в режиме редактирования)
                     if (isEditing) {
                         DisableButton(
                             text = "Сохранить",
                             onClick = {
+                                val photoUrl = selectedImageUri?.toString() ?: profilePhotoUrl
                                 val updatedProfile = Profile(
                                     firstname = name,
                                     lastname = lastName,
                                     address = address,
-                                    phone = phone
+                                    phone = phone,
+                                    photo = photoUrl
                                 )
                                 viewModel.updateProfile(context, updatedProfile)
+
+                                // ✅ Автоматический выход из режима редактирования
+                                isEditing = false
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -364,9 +370,7 @@ private fun InputField(
     label: String,
     value: String
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
             style = RalewayTypography.bodyMedium16.copy(
@@ -407,9 +411,7 @@ private fun EditableField(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
             style = RalewayTypography.bodyMedium16.copy(

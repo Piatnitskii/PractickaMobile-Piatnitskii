@@ -12,6 +12,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Query
@@ -40,16 +41,12 @@ interface UserManagementService {
 
 
     //PROFILES
-
-
     @Headers("apikey: $SUPABASE_KEY")
-    @POST("rest/v1/profiles")
+    @PATCH("rest/v1/profiles")
     suspend fun updateProfile(
-        @Query("id", encoded = true) Id: String,
-        @Body profile: Map<String, @JvmSuppressWildcards Any?>
-    ): Response<Unit>
-
-
+        @Query("id") filter: String,  // "eq.{profileId}"
+        @Body updateData: Map<String, String?>
+    ): Response<List<Profile>>
 
     @Headers("apikey: $SUPABASE_KEY")
     @POST("rest/v1/profiles?select=id")
