@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +27,9 @@ import com.example.up_piatnitskii.data.Model.Product
 
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
 import com.example.up_piatnitskii.R
-import com.example.up_piatnitskii.data.viewmodel.ProductDetailViewModel
+import com.example.up_piatnitskii.data.viewModel.ProductDetailViewModel
+import com.example.up_piatnitskii.ui.theme.AccentColor
+import com.example.up_piatnitskii.ui.theme.HintColor
 
 import kotlin.text.lines
 
@@ -60,19 +63,18 @@ fun ProductDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.Default.KeyboardArrowLeft,
                             contentDescription = "Назад"
                         )
                     }
                 },
                 actions = {
-                    // Иконка корзины
                     IconButton(
                         onClick = { /* можно добавить переход в корзину */ },
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
+                            .background(Color.LightGray)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.bag_2),
@@ -86,7 +88,7 @@ fun ProductDetailScreen(
                     containerColor = Color.White,
                     titleContentColor = Color.Black,
                     actionIconContentColor = Color.Black
-                )
+                ),
             )
         }
     ) { paddingValues ->
@@ -160,7 +162,6 @@ fun ProductDetailContent(
             .background(Color.White)
             .verticalScroll(rememberScrollState())
     ) {
-        // Заголовок, цена, категория и т.п. — оставь свой код
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -180,8 +181,6 @@ fun ProductDetailContent(
             )
         }
 
-        // Картинка и т.д. — оставь как у тебя, опускаю для краткости
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -192,20 +191,27 @@ fun ProductDetailContent(
                 text = product.description,
                 style = RalewayTypography.bodyRegular16.copy(color = Color.Black),
                 lineHeight = 24.sp,
+                color = HintColor,
                 maxLines = if (isDescriptionExpanded) Int.MAX_VALUE else 3,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             if (product.description.lines().size > 3 || product.description.length > 150) {
-                TextButton(
-                    onClick = { isDescriptionExpanded = !isDescriptionExpanded },
-                    modifier = Modifier.padding(bottom = 24.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text(
-                        text = if (isDescriptionExpanded) "Скрыть" else "Подробнее",
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    TextButton(
+                        onClick = { isDescriptionExpanded = !isDescriptionExpanded }
+                    ) {
+                        Text(
+                            text = if (isDescriptionExpanded) "Скрыть" else "Подробнее",
+                            color = AccentColor
+                        )
+                    }
                 }
             }
         }
@@ -220,16 +226,15 @@ fun ProductDetailContent(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(18.dp), // Расстояние между кнопками
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
                     onClick = {
-                        isFavorite = !isFavorite
-                        onToggleFavorite()
+
                     },
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(52.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFF5F5F5))
                 ) {
@@ -237,18 +242,19 @@ fun ProductDetailContent(
                         imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Избранное",
                         tint = if (isFavorite) Color.Red else Color.Black,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(26.dp)
                     )
                 }
 
                 Button(
                     onClick = { onAddToCart(product) },
                     modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp),
+                        .height(52.dp)
+                        .width(256.dp)
+                        .weight(0.2f),
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = AccentColor,
                         contentColor = Color.White
                     )
                 ) {
@@ -265,12 +271,13 @@ fun ProductDetailContent(
                                 .padding(end = 8.dp)
                         )
                         Text(
-                            text = "Добавить в корзину",
+                            text = "В корзину",
                             style = RalewayTypography.bodyMedium16
                         )
                     }
                 }
             }
         }
+
     }
 }

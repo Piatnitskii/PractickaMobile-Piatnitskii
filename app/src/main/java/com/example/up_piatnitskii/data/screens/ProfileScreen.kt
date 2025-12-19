@@ -146,6 +146,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             }
         }
         is ProfileState.Success -> {
+
             Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
                 Column(
                     modifier = Modifier

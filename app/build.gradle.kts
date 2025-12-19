@@ -76,7 +76,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-pager:0.28.0")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.28.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-// Lifecycle
+    // Lifecycle
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Optional - Proto DataStore
@@ -84,7 +84,7 @@ dependencies {
 
     // Coroutines поддержка для DataStore
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
-// Hilt
+    // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
 
     // Для ViewModel с Hilt

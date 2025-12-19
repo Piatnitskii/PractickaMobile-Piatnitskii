@@ -17,6 +17,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.up_piatnitskii.R
+import com.example.up_piatnitskii.ui.theme.BackgroundColor
 
 
 @Composable
@@ -29,7 +30,7 @@ fun BackButton(
         modifier = modifier
             .size(40.dp) // Размер кружочка
             .clip(CircleShape)
-            .background(backgroundColor)
+            .background(BackgroundColor)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {

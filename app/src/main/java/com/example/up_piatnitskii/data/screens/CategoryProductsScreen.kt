@@ -21,6 +21,7 @@ import com.example.practica_tomin.data.components.BackButton
 import com.example.shoeshop.ui.viewmodel.HomeViewModel
 import com.example.up_piatnitskii.data.Model.Product
 import com.example.up_piatnitskii.data.components.ProductCard
+import com.example.up_piatnitskii.ui.theme.BackgroundColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
 
 import kotlinx.coroutines.delay
@@ -49,7 +50,7 @@ fun CategoryProductsScreen(
         if (uiState.categories.isEmpty()) {
             viewModel.loadData()
             // Подождем пока загрузятся
-            delay(1000)
+            delay(500)
         }
 
         isLoading = true
@@ -68,6 +69,9 @@ fun CategoryProductsScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFF7F7F9) // rgba(247, 247, 249, 1) в HEX
+                ),
                 title = {
                     Text(
                         text = categoryName,
@@ -78,7 +82,8 @@ fun CategoryProductsScreen(
                     BackButton(onClick = onBackClick)
                 }
             )
-        }
+        },
+        containerColor = BackgroundColor,
     ) { paddingValues ->
         if (isLoading) {
             Box(
@@ -92,7 +97,7 @@ fun CategoryProductsScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .background(Color.White)
+                    .background(BackgroundColor)
             ) {
                 // Полоска с категориями
                 CategorySection(
@@ -100,7 +105,8 @@ fun CategoryProductsScreen(
                     selectedCategory = categoryName,
                     onCategorySelected = { newCategoryName ->
                         onCategorySelected(newCategoryName)
-                    }
+                    },
+                    padding = 20.dp
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

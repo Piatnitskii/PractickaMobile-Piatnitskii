@@ -90,16 +90,17 @@ fun ProductCard(
                 }
             }
 
-            // Информация о продукте
             Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .height(72.dp) // Фиксированная высота
             ) {
                 // BEST SELLER текст над названием
                 if (product.isBestSeller) {
                     Text(
                         text = "BEST SELLER",
                         style = RalewayTypography.bodyRegular12.copy(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AccentColor,
                             fontWeight = FontWeight.Bold
                         ),
                         modifier = Modifier.padding(bottom = 4.dp)
@@ -111,17 +112,18 @@ fun ProductCard(
                     style = RalewayTypography.bodyMedium16,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.height(48.dp)
+                    modifier = Modifier.height(30.dp),
+                    color = HintColor
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Отображаем цену в формате P{цена}
                 Text(
-                    text = "P${String.format("%.2f", product.price)}",
+                    text = "₽ ${String.format("%.2f", product.price)}",
                     style = RalewayTypography.bodyMedium16.copy(
                         fontWeight = FontWeight.Bold
-                    )
+                    ),
+                    color = TextColor
                 )
             }
         }

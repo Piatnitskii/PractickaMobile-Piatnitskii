@@ -1,4 +1,4 @@
-package com.example.up_piatnitskii.data.viewmodel
+package com.example.up_piatnitskii.data.viewModel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

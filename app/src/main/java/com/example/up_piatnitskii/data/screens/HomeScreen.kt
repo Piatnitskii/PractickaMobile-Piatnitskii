@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,6 +43,7 @@ import com.example.shoeshop.ui.viewmodel.HomeViewModel
 import com.example.up_piatnitskii.data.screens.ProfileScreen
 import com.example.up_piatnitskii.data.viewModel.ProfileViewModel
 import com.example.up_piatnitskii.data.viewModel.SupabaseClient
+import com.example.up_piatnitskii.ui.theme.BackgroundColor
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +53,7 @@ fun HomeScreen(
     onCartClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit = {},
-    onCategoryClick: (String) -> Unit = {} // Новый параметр для навигации на категорию
+    onCategoryClick: (String) -> Unit = {} //  параметр для навигации на категорию
 ) {
     var selected by remember { mutableIntStateOf(0) }
 
@@ -64,7 +66,8 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .height(80.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth().background(BackgroundColor)
+
             ) {
                 // Фоновая картинка
                 androidx.compose.foundation.Image(
@@ -89,7 +92,7 @@ fun HomeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.home),
                                 contentDescription = "Home",
-                                tint = if (selected == 0) MaterialTheme.colorScheme.primary else Color.Black
+                                tint = if (selected == 0) AccentColor else Color.Black
                             )
                         }
 
@@ -99,7 +102,7 @@ fun HomeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.favorite),
                                 contentDescription = "Favorites",
-                                tint = if (selected == 1) MaterialTheme.colorScheme.primary else Color.Black
+                                tint = if (selected == 1) AccentColor else Color.Black
                             )
                         }
                     }
@@ -114,8 +117,9 @@ fun HomeScreen(
                         FloatingActionButton(
                             onClick = { onCartClick() },
                             modifier = Modifier.size(56.dp),
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            containerColor = AccentColor,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            shape = RoundedCornerShape(30.dp) // Задайте нужный радиус закругления
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.bag_2),
@@ -125,13 +129,14 @@ fun HomeScreen(
                         }
                     }
 
+
                     // Правая группа иконок
                     Row {
                         IconButton(onClick = { selected = 2 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notification),
                                 contentDescription = "Notification",
-                                tint = if (selected == 2) MaterialTheme.colorScheme.primary else Color.Black
+                                tint = if (selected == 2) AccentColor else Color.Black
                             )
                         }
 
@@ -141,7 +146,7 @@ fun HomeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.profile),
                                 contentDescription = "Profile",
-                                tint = if (selected == 3) MaterialTheme.colorScheme.primary else Color.Black
+                                tint = if (selected == 3) AccentColor else Color.Black
                             )
                         }
                     }
@@ -154,7 +159,7 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White),
+                    .background(BackgroundColor),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -182,14 +187,14 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(Color.White)
+                .background(BackgroundColor)
         ) {
             // Верхняя панель с заголовком, поиском и настройками (только для главной вкладки)
             if (selected == 0) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
                 ) {
                     Text(
                         text = stringResource(id = R.string.home),
@@ -234,11 +239,15 @@ fun HomeScreen(
                                 },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color.Gray,
-                                    unfocusedBorderColor = Color.LightGray,
+                                    // Прозрачные границы
+                                    focusedBorderColor = Color.Transparent,
+                                    unfocusedBorderColor = Color.Transparent,
+                                    disabledBorderColor = Color.Transparent,
+                                    // Цвета фона
                                     focusedContainerColor = Color.White,
-                                    unfocusedContainerColor = Color.White
-                                )
+                                    unfocusedContainerColor = Color.White,
+                                    disabledContainerColor = Color.White
+                                ),
                             )
                         }
 
@@ -281,7 +290,8 @@ fun HomeScreen(
                                     onCategorySelected = { categoryName ->
                                         viewModel.selectCategory(categoryName)
                                         onCategoryClick(categoryName) // Навигация на экран категории
-                                    }
+                                    },
+                                    padding = 1.dp
                                 )
                             }
 
@@ -338,13 +348,14 @@ fun HomeScreen(
 fun CategorySection(
     categories: List<Category>,
     selectedCategory: String,
-    onCategorySelected: (String) -> Unit
+    onCategorySelected: (String) -> Unit,
+    padding: Dp
 ) {
     Column {
         Text(
             text = stringResource(id = R.string.categories),
             style = RalewayTypography.bodyMedium16,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 15.dp).padding(horizontal = padding)
         )
 
         LazyRow(
@@ -370,14 +381,14 @@ private fun CategoryChip(
     Surface(
         modifier = Modifier
             .clickable { onClick() }
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(10.dp)),
         color = if (isSelected) AccentColor else Color.White,
         contentColor = if (isSelected) Color.White else TextColor
     ) {
         Text(
             text = category,
-            style = RalewayTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            style = RalewayTypography.bodyRegular12.copy(fontWeight = FontWeight.Medium),
+            modifier = Modifier.padding(horizontal = 42.dp, vertical = 11.dp)
         )
     }
 }
@@ -396,20 +407,20 @@ private fun PopularSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
+                modifier = Modifier.padding(top =12.dp ),
                 text = stringResource(id = R.string.popular),
                 style = RalewayTypography.bodyMedium16,
             )
             Text(
                 text = "Все",
                 style = RalewayTypography.bodyRegular12,
-                color = MaterialTheme.colorScheme.primary,
+                color = AccentColor,
                 modifier = Modifier.clickable {
-                    // Можно добавить навигацию на все популярные товары
                 }
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         // Проверяем, есть ли товары
         if (products.isEmpty()) {
@@ -425,7 +436,7 @@ private fun PopularSection(
         } else {
             // Список товаров
             LazyRow(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(bottom = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(products) { product ->
@@ -445,7 +456,7 @@ private fun PopularSection(
 private fun PromotionsSection() {
     Column {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
 

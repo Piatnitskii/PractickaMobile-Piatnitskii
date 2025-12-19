@@ -73,7 +73,7 @@ fun NavigationApp(navController: NavHostController,
         composable("sign_in") {
             SignInScreen(
                 viewModel = signInViewModel,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.navigate("sign_up")  },
                 onRegisterClick = { navController.navigate("sign_up") },
                 onSignInClick = { navController.navigate("home") },
                 onForgotPasswordClick = { navController.navigate("ForgotPassword") }
@@ -94,16 +94,11 @@ fun NavigationApp(navController: NavHostController,
         composable("home") {
             HomeScreen(
                 onProductClick = { product ->
-                    // Навигация на экран товара
                     navController.navigate("product/${product.id}")
                 },
                 onCartClick = {
-                    // Навигация на корзину
-                    // navController.navigate("cart")
                 },
                 onSearchClick = {
-                    // Навигация на поиск
-                    // navController.navigate("search")
                 },
                 onCategoryClick = { categoryName ->
                     // Навигация на экран категории
