@@ -1,7 +1,7 @@
 // screens/HomeScreen.kt
 package com.example.up_piatnitskii.data.screens
 
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,16 +11,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import com.example.up_piatnitskii.R
+import androidx.compose.foundation.Image
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -32,18 +27,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.up_piatnitskii.data.Model.Product
-import com.example.up_piatnitskii.data.Model.Category
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.data.components.ProductCard
+import com.example.up_piatnitskii.data.Model.Category
+import com.example.up_piatnitskii.data.Model.Product
+
+import com.example.up_piatnitskii.ui.theme.AccentColor
+import com.example.up_piatnitskii.ui.theme.RalewayTypography
+import com.example.up_piatnitskii.ui.theme.TextColor
+
+import com.example.shoeshop.ui.viewmodel.HomeViewModel
+import com.example.up_piatnitskii.data.screens.ProfileScreen
 import com.example.up_piatnitskii.data.viewModel.ProfileViewModel
 import com.example.up_piatnitskii.data.viewModel.SupabaseClient
-import com.example.up_piatnitskii.ui.theme.AccentColor
-import com.example.up_piatnitskii.ui.theme.BackgroundColor
-import com.example.up_piatnitskii.ui.theme.HintColor
-import com.example.up_piatnitskii.ui.theme.RalewayTypography
-import com.example.up_piatnitskii.ui.theme.SubTextDarkColor
-import com.example.up_piatnitskii.ui.theme.SubTextLightColor
-import com.example.up_piatnitskii.ui.theme.TextColor
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,69 +50,24 @@ fun HomeScreen(
     onProductClick: (Product) -> Unit,
     onCartClick: () -> Unit,
     onSearchClick: () -> Unit,
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    onCategoryClick: (String) -> Unit = {} // Новый параметр для навигации на категорию
 ) {
-    var selected by rememberSaveable { mutableIntStateOf(0) }
+    var selected by remember { mutableIntStateOf(0) }
 
-    // Состояние для выбранной категории
-    var selectedCategory by remember { mutableStateOf("Все") }
-
-    // Данные категорий
-    val categories = listOf(
-        Category("Все", isSelected = true),
-        Category("Outdoor", isSelected = false),
-        Category("Tennis", isSelected = false)
-    )
-
-    val popularProducts = listOf(
-        Product(
-            id = "1",
-            name = "Nike Air Max",
-            price = "P752.00",
-            originalPrice = "P850.00",
-            category = "BEST SELLER",
-            imageUrl = "", // Оставьте пустым или добавьте URL
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3 // Добавьте ресурс картинки
-        ),
-        Product(
-            id = "2",
-            name = "Nike Air Force 1",
-            price = "P820.00",
-            originalPrice = "P900.00",
-            category = "BEST SELLER",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "3",
-            name = "Adidas Ultraboost",
-            price = "P680.00",
-            originalPrice = "P750.00",
-            category = "NEW",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "4",
-            name = "Puma RS-X",
-            price = "P520.00",
-            originalPrice = "P600.00",
-            category = "TRENDING",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        )
-    )
+    // Используем ViewModel для управления состоянием
+    val viewModel: HomeViewModel = viewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
             Box(
                 modifier = Modifier
                     .height(80.dp)
-                    .fillMaxWidth(),
-
+                    .fillMaxWidth()
             ) {
                 // Фоновая картинка
-                Image(
+                androidx.compose.foundation.Image(
                     painter = painterResource(id = R.drawable.vector_1789),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -151,7 +104,7 @@ fun HomeScreen(
                         }
                     }
 
-                    // Центральная кнопка корзины (выше других кнопок)
+                    // Центральная кнопка корзины
                     Box(
                         modifier = Modifier
                             .offset(y = (-20).dp)
@@ -161,7 +114,7 @@ fun HomeScreen(
                         FloatingActionButton(
                             onClick = { onCartClick() },
                             modifier = Modifier.size(56.dp),
-                            containerColor = AccentColor,
+                            containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ) {
                             Icon(
@@ -196,11 +149,40 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
+        // Показываем индикатор загрузки
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
+        // Показываем ошибку если есть
+        uiState.errorMessage?.let { errorMessage ->
+            AlertDialog(
+                onDismissRequest = { viewModel.clearError() },
+                title = { Text("Ошибка загрузки") },
+                text = { Text(errorMessage) },
+                confirmButton = {
+                    TextButton(
+                        onClick = { viewModel.clearError() }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(BackgroundColor)
+                .background(Color.White)
         ) {
             // Верхняя панель с заголовком, поиском и настройками (только для главной вкладки)
             if (selected == 0) {
@@ -214,11 +196,11 @@ fun HomeScreen(
                         style = RalewayTypography.headingRegular32,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 24.dp),
+                            .padding(bottom = 12.dp),
                         textAlign = TextAlign.Center
                     )
 
-                    // Строка с полем поиска и иконкой настроек
+                    // Строка с поиском и настройками
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -239,9 +221,8 @@ fun HomeScreen(
                                     .height(48.dp),
                                 placeholder = {
                                     Text(
-                                        text = stringResource(id = R.string.search),
-                                        style = RalewayTypography.bodyRegular14,
-                                        color = HintColor
+                                        text = "Поиск...",
+                                        style = RalewayTypography.bodyRegular14
                                     )
                                 },
                                 leadingIcon = {
@@ -252,10 +233,9 @@ fun HomeScreen(
                                     )
                                 },
                                 shape = RoundedCornerShape(12.dp),
-
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color.White,
-                                    unfocusedBorderColor = Color.White,
+                                    focusedBorderColor = Color.Gray,
+                                    unfocusedBorderColor = Color.LightGray,
                                     focusedContainerColor = Color.White,
                                     unfocusedContainerColor = Color.White
                                 )
@@ -264,7 +244,7 @@ fun HomeScreen(
 
                         Spacer(modifier = Modifier.width(12.dp))
 
-                        // Иконка настроек с круглым голубым фоном
+                        // Иконка настроек
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
@@ -285,9 +265,7 @@ fun HomeScreen(
             }
 
             // Основной контент
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 when (selected) {
                     0 -> {
                         LazyColumn(
@@ -298,10 +276,11 @@ fun HomeScreen(
                             // Секция: Категории
                             item {
                                 CategorySection(
-                                    categories = categories,
-                                    selectedCategory = selectedCategory,
-                                    onCategorySelected = { category ->
-                                        selectedCategory = category
+                                    categories = uiState.categories,
+                                    selectedCategory = uiState.selectedCategory,
+                                    onCategorySelected = { categoryName ->
+                                        viewModel.selectCategory(categoryName)
+                                        onCategoryClick(categoryName) // Навигация на экран категории
                                     }
                                 )
                             }
@@ -309,7 +288,7 @@ fun HomeScreen(
                             // Секция: Популярное
                             item {
                                 PopularSection(
-                                    products = popularProducts,
+                                    products = uiState.popularProducts,
                                     onProductClick = onProductClick,
                                     onFavoriteClick = { product ->
                                         // Обработка добавления в избранное
@@ -346,7 +325,7 @@ fun HomeScreen(
                         }
                     }
                     3 -> {
-                        val viewModel = remember { ProfileViewModel(SupabaseClient()) }
+                        val viewModel: ProfileViewModel=remember { ProfileViewModel(SupabaseClient()) }
                         ProfileScreen(viewModel = viewModel)
                     }
                 }
@@ -356,7 +335,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun CategorySection(
+fun CategorySection(
     categories: List<Category>,
     selectedCategory: String,
     onCategorySelected: (String) -> Unit
@@ -365,7 +344,7 @@ private fun CategorySection(
         Text(
             text = stringResource(id = R.string.categories),
             style = RalewayTypography.bodyMedium16,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 12.dp)
         )
 
         LazyRow(
@@ -391,14 +370,14 @@ private fun CategoryChip(
     Surface(
         modifier = Modifier
             .clickable { onClick() }
-            .clip(RoundedCornerShape(8.dp)),
+            .clip(RoundedCornerShape(16.dp)),
         color = if (isSelected) AccentColor else Color.White,
         contentColor = if (isSelected) Color.White else TextColor
     ) {
         Text(
             text = category,
             style = RalewayTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(horizontal = 42.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
 }
@@ -412,10 +391,9 @@ private fun PopularSection(
     Column {
         // Заголовок раздела
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stringResource(id = R.string.popular),
@@ -424,25 +402,40 @@ private fun PopularSection(
             Text(
                 text = "Все",
                 style = RalewayTypography.bodyRegular12,
-                color = AccentColor,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable {
-                    // Навигация на все популярные товары
+                    // Можно добавить навигацию на все популярные товары
                 }
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Список товаров
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(products) { product ->
-                ProductCard(
-                    product = product,
-                    onProductClick = { onProductClick(product) },
-                    onFavoriteClick = { onFavoriteClick(product) }
-                )
+        // Проверяем, есть ли товары
+        if (products.isEmpty()) {
+            Text(
+                text = "Нет товаров",
+                style = RalewayTypography.bodyRegular14,
+                color = Color.Gray,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                textAlign = TextAlign.Center
+            )
+        } else {
+            // Список товаров
+            LazyRow(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(products) { product ->
+                    ProductCard(
+                        product = product,
+                        onProductClick = { onProductClick(product) },
+                        onFavoriteClick = { onFavoriteClick(product) },
+                        modifier = Modifier
+                    )
+                }
             }
         }
     }
@@ -450,7 +443,7 @@ private fun PopularSection(
 
 @Composable
 private fun PromotionsSection() {
-    Column(modifier = Modifier.padding(top = 24.dp), ) {
+    Column {
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -471,6 +464,7 @@ private fun PromotionsSection() {
                 }
             )
         }
+
 
         Card(
             modifier = Modifier
@@ -493,7 +487,6 @@ private fun PromotionsSection() {
             )
         }
     }
-
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -503,6 +496,7 @@ fun HomeScreenPreview() {
         onProductClick = {},
         onCartClick = {},
         onSearchClick = {},
-        onSettingsClick = {}
+        onSettingsClick = {},
+        onCategoryClick = {}
     )
 }

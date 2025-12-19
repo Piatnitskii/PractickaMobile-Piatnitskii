@@ -63,8 +63,6 @@ import androidx.compose.material.AlertDialog
 //только из маленьких букв и цифр, старший домен только из символов количеством больше
 private val EMAIL_REGEX = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{2,}$")
 
-
-
 // Регистрация
 @Composable
 fun SignUpScreen(
