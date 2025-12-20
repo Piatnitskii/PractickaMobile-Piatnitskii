@@ -1,5 +1,6 @@
 
 import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,20 +17,17 @@ class SignUpViewModel(private val userDao: UserDAO): ViewModel() {
     var email: String = ""
     var password: String = ""
 
-    fun signUp(onSuccess: () -> Unit, onError: (String) -> Unit){
-        viewModelScope.launch{
-
+    fun signUp(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
             val signUpData = SignUpRequest(email, password)
-            val response =  RetrofitInstance.userManagementService.signUp(signUpData)
+            val response = RetrofitInstance.userManagementService.signUp(signUpData)
 
-            if (response.isSuccessful){
-
+            if (response.isSuccessful) {
                 response.body()?.let {
                     Log.v("signUp - if", "Пользователь зарегистрирован: ${it.email}")
                     onSuccess()
                 }
-            }
-            else{
+            } else {
                 val errorMessage = when (response.code()) {
                     422 -> "Пользователь уже существует или неверные данные"
                     500 -> "Ошибка сервера"

@@ -45,7 +45,7 @@ import com.example.up_piatnitskii.ui.theme.UPPiatnitskiiTheme
 
 private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
-// СОЗДАНИЕ ЭКРАНА СОЗДАНИЯ НОВГО ПАРОЛЯ, Щедрин Артем, 16.12.2025
+
 @Composable
 fun CreateNewPassword(
 

@@ -1,7 +1,7 @@
 // screens/HomeScreen.kt
 package com.example.up_piatnitskii.data.screens
 
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,16 +11,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import com.example.up_piatnitskii.R
+import androidx.compose.foundation.Image
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -30,12 +25,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.up_piatnitskii.data.Model.Product
-import com.example.up_piatnitskii.data.Model.Category
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.up_piatnitskii.R
 import com.example.up_piatnitskii.data.components.ProductCard
+import com.example.up_piatnitskii.data.Model.Category
+import com.example.up_piatnitskii.data.Model.Product
+
+import com.example.up_piatnitskii.ui.theme.AccentColor
 import com.example.up_piatnitskii.ui.theme.RalewayTypography
+import com.example.up_piatnitskii.ui.theme.TextColor
+
+import com.example.shoeshop.ui.viewmodel.HomeViewModel
+import com.example.up_piatnitskii.data.screens.ProfileScreen
+import com.example.up_piatnitskii.data.viewModel.ProfileViewModel
+import com.example.up_piatnitskii.data.viewModel.SupabaseClient
+import com.example.up_piatnitskii.ui.theme.BackgroundColor
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,68 +52,25 @@ fun HomeScreen(
     onProductClick: (Product) -> Unit,
     onCartClick: () -> Unit,
     onSearchClick: () -> Unit,
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    onCategoryClick: (String) -> Unit = {} //  параметр для навигации на категорию
 ) {
-    var selected by rememberSaveable { mutableIntStateOf(0) }
+    var selected by remember { mutableIntStateOf(0) }
 
-    // Состояние для выбранной категории
-    var selectedCategory by remember { mutableStateOf("Все") }
-
-    // Данные категорий
-    val categories = listOf(
-        Category("Все", isSelected = true),
-        Category("Outdoor", isSelected = false),
-        Category("Tennis", isSelected = false)
-    )
-
-    val popularProducts = listOf(
-        Product(
-            id = "1",
-            name = "Nike Air Max",
-            price = "P752.00",
-            originalPrice = "P850.00",
-            category = "BEST SELLER",
-            imageUrl = "", // Оставьте пустым или добавьте URL
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3 // Добавьте ресурс картинки
-        ),
-        Product(
-            id = "2",
-            name = "Nike Air Force 1",
-            price = "P820.00",
-            originalPrice = "P900.00",
-            category = "BEST SELLER",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "3",
-            name = "Adidas Ultraboost",
-            price = "P680.00",
-            originalPrice = "P750.00",
-            category = "NEW",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "4",
-            name = "Puma RS-X",
-            price = "P520.00",
-            originalPrice = "P600.00",
-            category = "TRENDING",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        )
-    )
+    // Используем ViewModel для управления состоянием
+    val viewModel: HomeViewModel = viewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
             Box(
                 modifier = Modifier
                     .height(80.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth().background(BackgroundColor)
+
             ) {
                 // Фоновая картинка
-                Image(
+                androidx.compose.foundation.Image(
                     painter = painterResource(id = R.drawable.vector_1789),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -127,7 +92,7 @@ fun HomeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.home),
                                 contentDescription = "Home",
-                                tint = if (selected == 0) MaterialTheme.colorScheme.primary else Color.Black
+                                tint = if (selected == 0) AccentColor else Color.Black
                             )
                         }
 
@@ -137,12 +102,12 @@ fun HomeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.favorite),
                                 contentDescription = "Favorites",
-                                tint = if (selected == 1) MaterialTheme.colorScheme.primary else Color.Black
+                                tint = if (selected == 1) AccentColor else Color.Black
                             )
                         }
                     }
 
-                    // Центральная кнопка корзины (выше других кнопок)
+                    // Центральная кнопка корзины
                     Box(
                         modifier = Modifier
                             .offset(y = (-20).dp)
@@ -152,8 +117,9 @@ fun HomeScreen(
                         FloatingActionButton(
                             onClick = { onCartClick() },
                             modifier = Modifier.size(56.dp),
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            containerColor = AccentColor,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            shape = RoundedCornerShape(30.dp) // Задайте нужный радиус закругления
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.bag_2),
@@ -163,13 +129,14 @@ fun HomeScreen(
                         }
                     }
 
+
                     // Правая группа иконок
                     Row {
                         IconButton(onClick = { selected = 2 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notification),
                                 contentDescription = "Notification",
-                                tint = if (selected == 2) MaterialTheme.colorScheme.primary else Color.Black
+                                tint = if (selected == 2) AccentColor else Color.Black
                             )
                         }
 
@@ -179,7 +146,7 @@ fun HomeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.profile),
                                 contentDescription = "Profile",
-                                tint = if (selected == 3) MaterialTheme.colorScheme.primary else Color.Black
+                                tint = if (selected == 3) AccentColor else Color.Black
                             )
                         }
                     }
@@ -187,18 +154,47 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
+        // Показываем индикатор загрузки
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(BackgroundColor),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
+        // Показываем ошибку если есть
+        uiState.errorMessage?.let { errorMessage ->
+            AlertDialog(
+                onDismissRequest = { viewModel.clearError() },
+                title = { Text("Ошибка загрузки") },
+                text = { Text(errorMessage) },
+                confirmButton = {
+                    TextButton(
+                        onClick = { viewModel.clearError() }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(Color.White)
+                .background(BackgroundColor)
         ) {
             // Верхняя панель с заголовком, поиском и настройками (только для главной вкладки)
             if (selected == 0) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
                 ) {
                     Text(
                         text = stringResource(id = R.string.home),
@@ -209,7 +205,7 @@ fun HomeScreen(
                         textAlign = TextAlign.Center
                     )
 
-                    // Строка с полем поиска и иконкой настроек
+                    // Строка с поиском и настройками
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -243,22 +239,26 @@ fun HomeScreen(
                                 },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color.Gray,
-                                    unfocusedBorderColor = Color.LightGray,
+                                    // Прозрачные границы
+                                    focusedBorderColor = Color.Transparent,
+                                    unfocusedBorderColor = Color.Transparent,
+                                    disabledBorderColor = Color.Transparent,
+                                    // Цвета фона
                                     focusedContainerColor = Color.White,
-                                    unfocusedContainerColor = Color.White
-                                )
+                                    unfocusedContainerColor = Color.White,
+                                    disabledContainerColor = Color.White
+                                ),
                             )
                         }
 
                         Spacer(modifier = Modifier.width(12.dp))
 
-                        // Иконка настроек с круглым голубым фоном
+                        // Иконка настроек
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
+                                .background(AccentColor)
                                 .clickable { onSettingsClick() },
                             contentAlignment = Alignment.Center
                         ) {
@@ -274,9 +274,7 @@ fun HomeScreen(
             }
 
             // Основной контент
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 when (selected) {
                     0 -> {
                         LazyColumn(
@@ -287,18 +285,20 @@ fun HomeScreen(
                             // Секция: Категории
                             item {
                                 CategorySection(
-                                    categories = categories,
-                                    selectedCategory = selectedCategory,
-                                    onCategorySelected = { category ->
-                                        selectedCategory = category
-                                    }
+                                    categories = uiState.categories,
+                                    selectedCategory = uiState.selectedCategory,
+                                    onCategorySelected = { categoryName ->
+                                        viewModel.selectCategory(categoryName)
+                                        onCategoryClick(categoryName) // Навигация на экран категории
+                                    },
+                                    padding = 1.dp
                                 )
                             }
 
                             // Секция: Популярное
                             item {
                                 PopularSection(
-                                    products = popularProducts,
+                                    products = uiState.popularProducts,
                                     onProductClick = onProductClick,
                                     onFavoriteClick = { product ->
                                         // Обработка добавления в избранное
@@ -335,7 +335,8 @@ fun HomeScreen(
                         }
                     }
                     3 -> {
-                        ProfileScreen()
+                        val viewModel: ProfileViewModel=remember { ProfileViewModel(SupabaseClient()) }
+                        ProfileScreen(viewModel = viewModel)
                     }
                 }
             }
@@ -344,16 +345,17 @@ fun HomeScreen(
 }
 
 @Composable
-private fun CategorySection(
+fun CategorySection(
     categories: List<Category>,
     selectedCategory: String,
-    onCategorySelected: (String) -> Unit
+    onCategorySelected: (String) -> Unit,
+    padding: Dp
 ) {
     Column {
         Text(
             text = stringResource(id = R.string.categories),
             style = RalewayTypography.bodyMedium16,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 15.dp).padding(horizontal = padding)
         )
 
         LazyRow(
@@ -379,14 +381,14 @@ private fun CategoryChip(
     Surface(
         modifier = Modifier
             .clickable { onClick() }
-            .clip(RoundedCornerShape(16.dp)),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFFF5F5F5),
-        contentColor = if (isSelected) Color.White else Color.Black
+            .clip(RoundedCornerShape(10.dp)),
+        color = if (isSelected) AccentColor else Color.White,
+        contentColor = if (isSelected) Color.White else TextColor
     ) {
         Text(
             text = category,
-            style = RalewayTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            style = RalewayTypography.bodyRegular12.copy(fontWeight = FontWeight.Medium),
+            modifier = Modifier.padding(horizontal = 42.dp, vertical = 11.dp)
         )
     }
 }
@@ -405,31 +407,46 @@ private fun PopularSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
+                modifier = Modifier.padding(top =12.dp ),
                 text = stringResource(id = R.string.popular),
                 style = RalewayTypography.bodyMedium16,
             )
             Text(
                 text = "Все",
                 style = RalewayTypography.bodyRegular12,
-                color = MaterialTheme.colorScheme.primary,
+                color = AccentColor,
                 modifier = Modifier.clickable {
-                    // Навигация на все популярные товары
                 }
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
-        // Список товаров
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(products) { product ->
-                ProductCard(
-                    product = product,
-                    onProductClick = { onProductClick(product) },
-                    onFavoriteClick = { onFavoriteClick(product) }
-                )
+        // Проверяем, есть ли товары
+        if (products.isEmpty()) {
+            Text(
+                text = "Нет товаров",
+                style = RalewayTypography.bodyRegular14,
+                color = Color.Gray,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                textAlign = TextAlign.Center
+            )
+        } else {
+            // Список товаров
+            LazyRow(
+                modifier = Modifier.padding(bottom = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(products) { product ->
+                    ProductCard(
+                        product = product,
+                        onProductClick = { onProductClick(product) },
+                        onFavoriteClick = { onFavoriteClick(product) },
+                        modifier = Modifier
+                    )
+                }
             }
         }
     }
@@ -438,70 +455,47 @@ private fun PopularSection(
 @Composable
 private fun PromotionsSection() {
     Column {
-        Text(
-            text = stringResource(id = R.string.sales),
-            style = RalewayTypography.bodyMedium16,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+
+            ) {
+            Text(
+                text = stringResource(id = R.string.sales),
+                style = RalewayTypography.bodyMedium16,
+                modifier = Modifier.padding()
+            )
+            Text(
+                text = "Все",
+                style = RalewayTypography.bodyRegular12,
+                color = AccentColor,
+                modifier = Modifier.clickable {
+                    // Навигация на все популярные товары
+                }
+            )
+        }
+
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(120.dp)
+                .clickable {  },
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF4CAF50)
-            )
+                containerColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Левая часть с текстом
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Summer Sale",
-                        style = RalewayTypography.headingRegular32.copy(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "15% OFF",
-                        style = RalewayTypography.headingRegular32.copy(
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
-                        )
-                    )
-                }
-
-                // Правая часть с кнопкой
-                TextButton(
-                    onClick = {
-                        // Навигация на акции
-                    },
-                    modifier = Modifier
-                        .background(Color.White, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Смотреть",
-                        style = RalewayTypography.bodyMedium16.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50)
-                        )
-                    )
-                }
-            }
+            Image(
+                painter = painterResource(
+                    R.drawable.frame_1000000849
+                ),
+                contentDescription = "Summer sale",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
         }
     }
 }
@@ -513,6 +507,7 @@ fun HomeScreenPreview() {
         onProductClick = {},
         onCartClick = {},
         onSearchClick = {},
-        onSettingsClick = {}
+        onSettingsClick = {},
+        onCategoryClick = {}
     )
 }
