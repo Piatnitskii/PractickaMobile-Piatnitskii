@@ -24,7 +24,7 @@ object RetrofitInstance {
 
     private const val PROXY_HOST = "10.207.106.77"
     private const val PROXY_PORT = 3128
-    private const val USE_PROXY = false
+    private const val USE_PROXY = true
 
     // Основной интерцептор (как в shoeshop)
     private val supabaseInterceptor = Interceptor { chain ->
